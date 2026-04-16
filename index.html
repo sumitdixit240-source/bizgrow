@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizGrow | Autonomous Business Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+        }
+
+        /* Zoom out effect for the whole page when logging in */
+        .zoom-out-active {
+            transform: scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .ai-gradient {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+        }
+
+        .ai-text {
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .neural-bg {
+            background-image: radial-gradient(#10b981 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+        }
+
+        .float-work-btn {
+            animation: float-gentle 3s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .analysis-container {
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-container::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #10b981, #34d399, transparent);
+            z-index: -1;
+            border-radius: 2.5rem;
+            opacity: 0.3;
+        }
+
+        .btn-login {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-login:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body class="text-slate-900 overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-4 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center glass-nav p-3 rounded-2xl shadow-sm border border-white/40">
+            <div class="flex flex-col items-start relative ml-2 group">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 ai-gradient rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+                        <i class="fas fa-brain text-white"></i>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight italic">BIZ<span class="text-emerald-600">GROW</span></span>
+                </div>
+                
+                <button onclick="window.location.href='working.html'" class="float-work-btn absolute -bottom-10 left-0 flex items-center gap-2 bg-white text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100 shadow-md hover:bg-emerald-50 whitespace-nowrap">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                    </span>
+                    How We Work
+                </button>
+            </div>
+            
+            <div class="hidden md:flex space-x-8 text-sm font-semibold">
+                <a href="#ai-engine" class="text-slate-600 hover:text-emerald-600 transition-colors">AI Engine</a>
+                <a href="#automation" class="text-slate-600 hover:text-emerald-600 transition-colors">Automation Hub</a>
+                <a href="#impact" class="text-slate-600 hover:text-emerald-600 transition-colors">Impact Analytics</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="handleLoginRedirect()" class="btn-login px-6 py-2.5 rounded-xl text-sm font-bold bg-slate-900 text-white hover:bg-black transition-all shadow-lg active:scale-90">
+                    Client Login
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="hidden md:flex ai-gradient text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-emerald-100 active:scale-95">
+                    WHY US ?
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-44 pb-24 px-4 neural-bg">
+        <div class="max-w-7xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-widest mb-8 animate-pulse">
+                <i class="fas fa-sparkles"></i>
+                Enterprise v4.0 AI Now Live
+            </div>
+            <h1 class="text-5xl md:text-8xl font-black text-slate-900 mb-8 leading-[1.05]">
+                The Future of <br>
+                <span class="ai-text">Autonomous Growth.</span>
+            </h1>
+            <p class="max-w-3xl mx-auto text-lg md:text-xl text-slate-600 mb-12 leading-relaxed">
+                Experience a business ecosystem that self-optimizes. BizGrow’s neural agents manage your workflows, predict market trends, and scale your operations without manual intervention.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-6 mb-20">
+                <button onclick="window.location.href='working.html'" class="ai-gradient text-white px-10 py-5 rounded-2xl font-bold text-lg hover:brightness-110 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-emerald-200">
+                    Start Integration <i class="fas fa-bolt"></i>
+                </button>
+                <button class="bg-white text-slate-700 border border-slate-200 px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-xl transition-all flex items-center justify-center gap-3">
+                    Watch Neural Demo <i class="fas fa-play text-xs"></i>
+                </button>
+            </div>
+            
+            <!-- Centered Business Analysis Image (Replaced Black Box) -->
+            <div class="relative max-w-5xl mx-auto reveal active">
+                <div class="analysis-container bg-white rounded-[2.5rem] overflow-hidden border border-emerald-100 shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426" 
+                         alt="Business Intelligence Analysis" 
+                         class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700">
+                    
+                    <!-- Overlay Gradient to blend with page -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent pointer-events-none"></div>
+                    
+                    <!-- Floating Data Label -->
+                    <div class="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-lg border border-emerald-50 hidden sm:flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-tighter">Real-time Performance Analysis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Core AI Features -->
+    <section id="ai-engine" class="py-32 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-black mb-6">Built for <span class="text-emerald-600">Enterprise Velocity.</span></h2>
+            <p class="text-slate-500 max-w-2xl mx-auto">Our neural backbone integrates directly into your existing stack, identifying and resolving friction points in milliseconds.</p>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+            <div class="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:border-emerald-500 transition-all group reveal">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                    <i class="fas fa-brain text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Self-Healing Workflows</h3>
+                <p class="text-slate-500 leading-relaxed">AI agents monitor operational health and automatically rewrite automation logic when business parameters shift.</p>
+            </div>
+
+            <div class="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:border-emerald-500 transition-all group reveal">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                    <i class="fas fa-shield-halved text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Zero-Trust Security</h3>
+                <p class="text-slate-500 leading-relaxed">Enterprise-grade encryption with autonomous threat detection that isolates anomalies before they impact your data.</p>
+            </div>
+
+            <div class="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:border-emerald-500 transition-all group reveal">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                    <i class="fas fa-chart-line text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Predictive Scalability</h3>
+                <p class="text-slate-500 leading-relaxed">Forecast infrastructure and inventory requirements up to 6 months in advance with 99.2% accuracy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 px-4 bg-slate-50">
+        <div class="max-w-7xl mx-auto ai-gradient rounded-[3rem] p-12 md:p-24 text-center text-white relative overflow-hidden shadow-2xl">
+            <h2 class="text-4xl md:text-6xl font-black mb-8">Deploy your first <br> AI agent today.</h2>
+            <div class="flex flex-col sm:flex-row justify-center gap-6">
+                <button onclick="handleLoginRedirect()" class="bg-white text-emerald-700 px-12 py-5 rounded-2xl font-extrabold text-xl hover:scale-105 transition-all shadow-xl">
+                    Get Started Now
+                </button>
+            </div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white py-20 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 ai-gradient rounded-lg flex items-center justify-center">
+                    <i class="fas fa-brain text-white text-xs"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tighter italic">BIZGROW</span>
+            </div>
+            <p class="text-slate-400 text-sm italic">"Intelligence in every transaction."</p>
+            <div class="flex gap-8 text-sm font-bold text-slate-500">
+                <a href="#" class="hover:text-emerald-600">Privacy</a>
+                <a href="#" class="hover:text-emerald-600">Terms</a>
+                <a href="#" class="hover:text-emerald-600">Security</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function handleLoginRedirect() {
+            document.body.classList.add('zoom-out-active');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 550);
+        }
+
+        window.onload = () => {
+            handleScroll();
+        };
+
+        function handleScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(r => {
+                const windowHeight = window.innerHeight;
+                const revealTop = r.getBoundingClientRect().top;
+                if (revealTop < windowHeight - 100) {
+                    r.classList.add('active');
+                }
+            });
+            
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                nav.classList.add('py-2');
+            } else {
+                nav.classList.remove('py-2');
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll);
+    </script>
+    <script src="script.js"></script>which file
+</body>
+</html>
+

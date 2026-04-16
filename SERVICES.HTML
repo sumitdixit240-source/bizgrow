@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizGrow AI | Professional Intelligence Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-card { background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); transition: transform 0.2s; }
+        .glass-card:hover { transform: translateY(-2px); }
+        .modal-overlay { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); }
+        
+        .service-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        .tab-btn.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; font-weight: 800; }
+
+        .markdown-content h1 { font-size: 1.5rem; font-weight: 800; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1e293b; }
+        .markdown-content h2 { font-size: 1.25rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #334155; }
+        .markdown-content p { margin-bottom: 1rem; line-height: 1.6; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Auth Protection & State Check -->
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+            // If no user → redirect to login
+            window.location.href = "login.html";
+        }
+    </script>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-microchip text-white text-sm"></i>
+                </div>
+                <h1 class="text-lg font-extrabold tracking-tight">BIZGROW <span class="text-indigo-600">PRO</span></h1>
+            </div>
+
+            <!-- User Info Display & Logout -->
+            <div class="flex items-center gap-6">
+                <div class="text-right hidden md:block">
+                    <p class="text-xs font-black text-slate-900 uppercase" id="userName">Loading...</p>
+                    <p class="text-[10px] font-bold text-slate-400" id="userEmail">identity@verifying.ai</p>
+                </div>
+                <div id="subscription-badge" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Active</div>
+                <button onclick="logout()" class="text-slate-400 hover:text-red-600 transition-colors text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6">
+        <!-- Hero Welcome -->
+        <div class="mb-12 py-10">
+            <h2 class="text-4xl font-black text-slate-900 tracking-tight mb-2">Welcome back, <span id="heroUserName" class="text-indigo-600">User</span></h2>
+            <p class="text-slate-500 font-medium">Your autonomous modules are synced and ready for deployment.</p>
+        </div>
+
+        <div id="main-catalog-section">
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Module Intelligence Catalog</h3>
+            <div id="service-container" class="service-grid"></div>
+        </div>
+
+        <!-- Detailed AI Analysis Result Container -->
+        <div id="analysis-result-container" class="hidden mt-6 animate-fade-in">
+             <div class="flex items-center justify-between mb-8">
+                <button onclick="goBackToServices()" class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Back to Catalog
+                </button>
+             </div>
+             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="glass-card p-10 rounded-[2.5rem]">
+                        <h2 id="result-title" class="text-4xl font-black text-slate-900 mb-6">Intelligence Report</h2>
+                        <div id="ai-loading-state" class="py-20 text-center">
+                            <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p class="text-xs font-black text-slate-400 uppercase">Consulting Sovereign Brain...</p>
+                        </div>
+                        <div id="ai-text-output" class="markdown-content text-slate-600 space-y-4"></div>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </main>
+
+    <!-- Data Collection Modal -->
+    <div id="data-modal" class="hidden fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl relative overflow-y-auto max-h-[90vh] custom-scroll">
+            <div class="flex justify-between items-start mb-6">
+                <h2 id="data-title" class="text-2xl font-black uppercase tracking-tight">Intelligence Input</h2>
+                <button onclick="closeDataModal()" class="text-slate-300 hover:text-slate-500"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-6">Module: <span id="module-tag" class="text-indigo-600"></span></p>
+
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400">Target Business Name</label>
+                        <input type="text" id="biz-name" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-indigo-100 text-sm font-bold" placeholder="e.g. Skyline Retail">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400">Financial Value (Approx)</label>
+                        <input type="number" id="biz-value" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-indigo-100 text-sm font-bold" placeholder="₹">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="handleRazorpayPayment()" class="w-full mt-8 bg-slate-900 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs shadow-xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-bolt"></i> Pay & Start Analysis
+            </button>
+        </div>
+    </div>
+
+    <!-- Processing Modal -->
+    <div id="processing-modal" class="hidden fixed inset-0 z-[110] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 text-center shadow-2xl">
+            <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 class="text-xl font-black uppercase tracking-tight mb-2">Verifying Payment</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Securing AI Resources...</p>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "";
+        const rzpKeyId = "rzp_live_SdQaM0b0CK86mM";
+
+        let selectedService = null;
+        const paidServices = new Set();
+
+        // 1. Core Logic to populate userName and userEmail on load
+        function initializeUserState() {
+            if (user) {
+                document.getElementById("userName").innerText = user.name;
+                document.getElementById("userEmail").innerText = user.email;
+                
+                // Also update a hero welcome if it exists
+                const heroName = document.getElementById("heroUserName");
+                if (heroName) heroName.innerText = user.name;
+            }
+        }
+
+        // 2. Logout Handler
+        function logout() {
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+        }
+
+        const services = [
+            { id: 1, name: "Capital Recovery AI", price: 999, icon: "fa-vault", prompt: "Identify recoverable capital and tax optimization opportunities." },
+            { id: 2, name: "Tax Auditor Pro", price: 1499, icon: "fa-file-invoice-dollar", prompt: "Audit for GST discrepancies and compliance gaps." },
+            { id: 3, name: "Stock Life Predictor", price: 799, icon: "fa-hourglass-half", prompt: "Analyze inventory data to predict depletion dates." },
+            { id: 4, name: "Market Trend Analyzer", price: 1999, icon: "fa-magnifying-glass-chart", prompt: "Analyze competitor trends and consumer behavior." }
+        ];
+
+        function renderServices() {
+            const container = document.getElementById('service-container');
+            if (!container) return;
+            container.innerHTML = services.map(s => `
+                <div class="glass-card p-6 rounded-[2rem] flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 bg-slate-50 text-slate-700 rounded-xl flex items-center justify-center">
+                                <i class="fas ${s.icon} text-lg"></i>
+                            </div>
+                            <span class="text-xs font-black text-indigo-600">₹${s.price}</span>
+                        </div>
+                        <h4 class="font-black text-slate-800 mb-2">${s.name}</h4>
+                    </div>
+                    <button onclick="openDataModal(${s.id})" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paidServices.has(s.id) ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-white hover:bg-indigo-600'}">
+                        ${paidServices.has(s.id) ? 'View Analysis' : 'Run Module'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openDataModal(id) {
+            selectedService = services.find(s => s.id === id);
+            if(paidServices.has(id)) { showDetailedAnalysis(); return; }
+            document.getElementById('module-tag').innerText = selectedService.name;
+            document.getElementById('data-modal').classList.remove('hidden');
+        }
+
+        function handleRazorpayPayment() {
+            if (!selectedService) return;
+
+            const options = {
+                "key": rzpKeyId,
+                "amount": selectedService.price * 100,
+                "currency": "INR",
+                "name": "BizGrow AI Suite",
+                "description": `Unlock ${selectedService.name} Intelligence`,
+                "handler": function (response) {
+                    closeDataModal();
+                    startProcessing();
+                },
+                "prefill": {
+                    "name": user ? user.name : "Business Owner",
+                    "email": user ? user.email : "contact@bizgrowai.com"
+                },
+                "theme": { "color": "#4f46e5" }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', (resp) => console.error("Payment failed", resp.error));
+            rzp.open();
+        }
+
+        function startProcessing() {
+            document.getElementById('processing-modal').classList.remove('hidden');
+            setTimeout(() => {
+                paidServices.add(selectedService.id);
+                document.getElementById('processing-modal').classList.add('hidden');
+                renderServices();
+                showDetailedAnalysis();
+            }, 2000);
+        }
+
+        async function showDetailedAnalysis() {
+            document.getElementById('main-catalog-section').classList.add('hidden');
+            document.getElementById('analysis-result-container').classList.remove('hidden');
+            document.getElementById('ai-loading-state').classList.remove('hidden');
+            document.getElementById('ai-text-output').innerHTML = "";
+            
+            const prompt = `Perform ${selectedService.name} analysis for ${user ? user.name : 'Company'}. Focus on: ${selectedService.prompt}.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error generating analysis.";
+                
+                document.getElementById('ai-text-output').innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                document.getElementById('ai-loading-state').classList.add('hidden');
+            } catch (err) {
+                document.getElementById('ai-text-output').innerText = "Intelligence synthesis error.";
+            }
+        }
+
+        function closeDataModal() { document.getElementById('data-modal').classList.add('hidden'); }
+        function goBackToServices() { 
+            document.getElementById('main-catalog-section').classList.remove('hidden'); 
+            document.getElementById('analysis-result-container').classList.add('hidden'); 
+        }
+        
+        window.onload = () => {
+            initializeUserState();
+            renderServices();
+        };
+    </script>
+</body>
+</html>
