@@ -1,185 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | BizGrow</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | BizGrow Autonomous Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        .neural-bg {
+            background-image: radial-gradient(#10b981 0.5px, transparent 0.5px);
+            background-size: 32px 32px;
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+        }
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        }
 
-body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: #f8fafc;
-}
+        .ai-gradient {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+        }
 
-.neural-bg {
-    background-image: radial-gradient(#10b981 0.5px, transparent 0.5px);
-    background-size: 32px 32px;
-}
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
 
-.glass-card {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.5);
-}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-.ai-gradient {
-    background: linear-gradient(135deg,#059669,#10b981,#34d399);
-}
+        #statusOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            transition: all 0.5s ease;
+        }
 
-.loader {
-    border: 3px solid rgba(255,255,255,0.3);
-    border-top: 3px solid white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    animation: spin 1s linear infinite;
-}
+        /* Rocket Animation */
+        .rocket-container {
+            position: relative;
+            width: 100px;
+            height: 150px;
+            margin-bottom: 2rem;
+            transition: transform 5s cubic-bezier(0.47, 0, 0.745, 0.715);
+        }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+        .rocket-launching {
+            transform: translateY(-120vh) scale(0.5);
+        }
 
-#statusOverlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(255,255,255,0.95);
-}
-</style>
+        .rocket-body {
+            font-size: 5rem;
+            color: #10b981;
+            filter: drop-shadow(0 10px 15px rgba(16, 185, 129, 0.3));
+            animation: shake 0.2s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-1px, -2px) rotate(-1deg); }
+            40% { transform: translate(-3px, 0px) rotate(1deg); }
+            60% { transform: translate(3px, 2px) rotate(0deg); }
+            80% { transform: translate(1px, -1px) rotate(1deg); }
+            100% { transform: translate(-1px, 2px) rotate(-1deg); }
+        }
+
+        .exhaust-flame {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to bottom, #fbbf24, #ef4444);
+            border-radius: 0 0 20px 20px;
+            filter: blur(4px);
+            animation: flame 0.1s infinite;
+        }
+
+        @keyframes flame {
+            0%, 100% { height: 40px; opacity: 0.8; }
+            50% { height: 60px; opacity: 1; }
+        }
+
+        .countdown-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
-
 <body class="neural-bg min-h-screen flex items-center justify-center p-4">
 
-<div class="max-w-md w-full glass-card rounded-3xl p-8">
+    <div class="max-w-md w-full">
+        <a href="index.html" class="inline-flex items-center text-sm font-semibold text-slate-500 hover:text-emerald-600 mb-8 transition-colors group">
+            <i class="fas fa-arrow-left mr-2 transform group-hover:-translate-x-1 transition-transform"></i>
+            Back to Home
+        </a>
 
-    <h1 class="text-3xl font-bold text-center mb-6">Welcome Back</h1>
+        <div id="loginCard" class="glass-card rounded-[2.5rem] p-10 relative overflow-hidden">
+            <div class="text-center mb-10">
+                <div class="w-16 h-16 ai-gradient rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
+                    <i class="fas fa-brain text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 mb-2">Welcome Back</h1>
+                <p class="text-slate-500 font-medium text-sm">Verify your neural credentials</p>
+            </div>
 
-    <form id="loginForm" class="space-y-5">
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="email" id="email" required placeholder="name@company.com" 
+                            class="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                    </div>
+                </div>
 
-        <input id="email" type="email" placeholder="Email"
-        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="password" id="password" required placeholder="••••••••" 
+                            class="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                    </div>
+                </div>
 
-        <input id="password" type="password" placeholder="Password"
-        class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+                <div id="errorMessage" class="hidden p-4 rounded-xl bg-red-50 text-red-600 text-xs font-bold flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText">Error message here</span>
+                </div>
 
-        <div id="errorMessage" class="hidden text-red-600 text-sm"></div>
+                <button type="submit" id="submitBtn" class="w-full ai-gradient text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-emerald-100 hover:brightness-105 active:scale-95 transition-all">
+                    Authenticate
+                </button>
+            </form>
 
-        <button id="submitBtn"
-        class="w-full ai-gradient text-white py-3 rounded-xl font-bold">
-            Authenticate
-        </button>
-    </form>
+            <div class="mt-8 space-y-4 text-center">
+                <p class="text-slate-500 text-sm font-medium">
+                    New to the ecosystem? 
+                    <a href="signup.html" class="text-emerald-600 font-bold hover:underline">Create an account</a>
+                </p>
+                
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-slate-100"></div>
+                    <span class="flex-shrink mx-4 text-slate-300 text-[10px] font-black uppercase tracking-widest">Or</span>
+                    <div class="flex-grow border-t border-slate-100"></div>
+                </div>
 
-</div>
+                <a href="signup.html" class="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-emerald-50 hover:border-emerald-100 hover:text-emerald-700 transition-all group">
+                    <i class="fas fa-user-plus text-xs opacity-50 group-hover:opacity-100"></i>
+                    Become a Member
+                </a>
+            </div>
+        </div>
+    </div>
 
-<div id="statusOverlay">
-    <h2 class="text-2xl font-bold">Login Successful 🚀</h2>
-</div>
+    <!-- Status Overlay with Rocket -->
+    <div id="statusOverlay">
+        <div class="rocket-container" id="rocketContainer">
+            <div class="rocket-body">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="exhaust-flame"></div>
+        </div>
+        <div class="text-center px-6">
+            <h2 class="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tight" id="statusTitle">Access Granted</h2>
+            <p class="text-slate-500 font-medium mb-4">Liftoff initiated. Prepare for dashboard entry.</p>
+            <div class="countdown-text" id="timerCount">5</div>
+        </div>
+    </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// ✅ Firebase config
-const firebaseConfig = {
-    apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
-    authDomain: "bizgrow-a23c0.firebaseapp.com",
-    projectId: "bizgrow-a23c0",
-    storageBucket: "bizgrow-a23c0.firebasestorage.app",
-    messagingSenderId: "939506450920",
-    appId: "1:939506450920:web:76e5faf1fc9caf379c245d"
-};
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
+            authDomain: "bizgrow-a23c0.firebaseapp.com",
+            projectId: "bizgrow-a23c0",
+            storageBucket: "bizgrow-a23c0.firebasestorage.app",
+            messagingSenderId: "939506450920",
+            appId: "1:939506450920:web:76e5faf1fc9caf379c245d",
+            measurementId: "G-WLZYCP312V"
+        };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-// UI
-const form = document.getElementById("loginForm");
-const btn = document.getElementById("submitBtn");
-const errorBox = document.getElementById("errorMessage");
-const overlay = document.getElementById("statusOverlay");
+        const form = document.getElementById("loginForm");
+        const submitBtn = document.getElementById("submitBtn");
+        const errorContainer = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+        const overlay = document.getElementById("statusOverlay");
+        const timerDisplay = document.getElementById("timerCount");
+        const rocket = document.getElementById("rocketContainer");
 
-// submit
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+        const startLaunch = (callback) => {
+            overlay.style.display = 'flex';
+            let count = 5;
+            timerDisplay.innerText = count;
+            
+            // Trigger rocket launch movement
+            setTimeout(() => {
+                rocket.classList.add('rocket-launching');
+            }, 100);
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+            const interval = setInterval(() => {
+                count--;
+                timerDisplay.innerText = count;
+                if (count <= 0) {
+                    clearInterval(interval);
+                    callback();
+                }
+            }, 1000);
+        };
 
-    if (!email || !password) {
-        showError("Please fill all fields");
-        return;
-    }
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-    errorBox.classList.add("hidden");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loader"></span>';
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
-    try {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        const user = cred.user;
+            errorContainer.classList.add("hidden");
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span> Authenticating...';
 
-        let name = "User";
+            try {
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                const user = cred.user;
 
-        try {
-            const snap = await getDoc(doc(db, "users", user.uid));
-            if (snap.exists()) name = snap.data().fullName || "User";
-        } catch {}
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+                
+                let fullName = "User";
+                if (docSnap.exists()) {
+                    fullName = docSnap.data().fullName || "User";
+                }
 
-        localStorage.setItem("user", JSON.stringify({
-            name,
-            email: user.email,
-            uid: user.uid
-        }));
+                localStorage.setItem("user", JSON.stringify({
+                    name: fullName,
+                    email: user.email,
+                    uid: user.uid
+                }));
 
-        overlay.style.display = "flex";
+                // Start Rocket Animation and Redirect
+                startLaunch(() => {
+                    window.location.href = "index.html";
+                });
 
-        setTimeout(() => {
-            window.location.href = "SERVICES.html";
-        }, 2000);
-
-    } catch (err) {
-        console.error(err.code, err.message);
-
-        btn.disabled = false;
-        btn.innerHTML = "Authenticate";
-
-        switch (err.code) {
-            case "auth/user-not-found":
-                showError("User not found");
-                break;
-            case "auth/wrong-password":
-                showError("Wrong password");
-                break;
-            case "auth/invalid-email":
-                showError("Invalid email");
-                break;
-            case "auth/invalid-credential":
-                showError("Invalid credentials");
-                break;
-            case "auth/network-request-failed":
-                showError("Network error");
-                break;
-            default:
-                showError("Login failed");
-        }
-    }
-});
-
-function showError(msg) {
-    errorBox.innerText = msg;
-    errorBox.classList.remove("hidden");
-}
-</script>
-
+            } catch (err) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "Authenticate";
+                errorContainer.classList.remove("hidden");
+                
+                let message = "Neural handshake failed. Please check credentials.";
+                if (err.code === 'auth/user-not-found') message = "Account not found.";
+                if (err.code === 'auth/wrong-password') message = "Incorrect password.";
+                if (err.code === 'auth/invalid-credential') message = "Invalid credentials provided.";
+                
+                errorText.innerText = message;
+                console.error("Login Error:", err);
+            }
+        });
+    </script>
 </body>
 </html>
