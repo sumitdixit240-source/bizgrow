@@ -117,20 +117,25 @@
         </p>
     </div>
 
-    <!-- Success Message Modal with Timer -->
+    <!-- Success Message Modal -->
     <div id="successModal" class="success-modal px-4">
-        <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl animate-slide-up">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl animate-slide-up relative">
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-300 hover:text-slate-500 transition-colors">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+
             <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-check-circle text-4xl"></i>
             </div>
-            <h2 class="text-2xl font-black text-slate-900 mb-2">Account Created!</h2>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Account Created</h2>
             <p class="text-slate-500 mb-8 font-medium">
-                Your BIZGROW workspace is ready for deployment.
+                Your BIZGROW workspace has been successfully provisioned.
             </p>
             
             <div class="bg-slate-50 rounded-2xl py-6 mb-2">
                 <div class="text-5xl font-black text-emerald-600 mb-2" id="redirectTimer">5</div>
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Redirecting to Login</p>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Redirecting to Portal</p>
             </div>
         </div>
     </div>
@@ -159,6 +164,12 @@
         const submitBtn = document.getElementById("submitBtn");
         const modal = document.getElementById('successModal');
         const timerEl = document.getElementById('redirectTimer');
+        let countdownInterval;
+
+        window.closeModal = () => {
+            modal.style.display = 'none';
+            if (countdownInterval) clearInterval(countdownInterval);
+        };
 
         async function withRetry(fn, retries = 5, delay = 1000) {
             try {
@@ -196,15 +207,15 @@
                     appId: appId
                 }));
 
-                // 3. UI Success & 5-second Timer
+                // 3. Professional Success Pop-up & Timer
                 modal.style.display = 'flex';
                 let timeLeft = 5;
                 
-                const countdown = setInterval(() => {
+                countdownInterval = setInterval(() => {
                     timeLeft--;
                     timerEl.innerText = timeLeft;
                     if (timeLeft <= 0) {
-                        clearInterval(countdown);
+                        clearInterval(countdownInterval);
                         window.location.href = 'login.html';
                     }
                 }, 1000);
@@ -216,7 +227,7 @@
                 
                 const errorDisplay = document.createElement('p');
                 errorDisplay.className = 'text-red-500 text-xs mt-4 text-center font-bold animate-slide-up';
-                errorDisplay.innerText = err.message || 'Signup failed. Please check your network connection.';
+                errorDisplay.innerText = err.message || 'Error encountered during registration.';
                 
                 const existing = document.querySelector('.text-red-500');
                 if (existing) existing.remove();
