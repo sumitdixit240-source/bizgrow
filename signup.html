@@ -53,7 +53,7 @@ body {
 
     <div class="bg-white p-6 rounded-xl text-center w-80 relative">
 
-        <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-400">
+        <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
             <i class="fas fa-times"></i>
         </button>
 
@@ -77,12 +77,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+// ✅ REAL FIREBASE CONFIG (FIXED)
 const firebaseConfig = {
     apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
     authDomain: "bizgrow-a23c0.firebaseapp.com",
     projectId: "bizgrow-a23c0",
 };
 
+// INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -101,35 +103,34 @@ form.addEventListener("submit", async (e) => {
     btn.innerText = "Creating...";
 
     try {
-
-        // CREATE USER
+        // ✅ CREATE USER
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
 
-        // SAVE TO FIRESTORE (IMPORTANT PATH)
-        await setDoc(
-            doc(db, "artifacts", "bizgrow-prod", "users", user.uid, "profile", "data"),
-            {
-                fullName: name,
-                email: email,
-                uid: user.uid,
-                createdAt: new Date().toISOString()
-            }
-        );
+        // ✅ SAVE TO FIRESTORE (FIXED PATH)
+        await setDoc(doc(db, "users", user.uid), {
+            fullName: name,
+            email: email,
+            uid: user.uid,
+            createdAt: new Date().toISOString(),
+            role: "user"
+        });
 
-        // SHOW POPUP
+        // ✅ SHOW SUCCESS POPUP
         document.getElementById("successModal").classList.remove("hidden");
 
         form.reset();
 
-    } catch (err) {
-
-        alert(err.message);
         btn.disabled = false;
         btn.innerText = "Create Account";
 
-    }
+    } catch (err) {
+        console.error("Signup error:", err);
+        alert(err.message);
 
+        btn.disabled = false;
+        btn.innerText = "Create Account";
+    }
 });
 
 // CLOSE MODAL
