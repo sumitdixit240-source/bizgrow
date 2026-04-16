@@ -2,398 +2,630 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizGrow | Accelerate Your Business Success</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AlertaIQ | AI-Powered Expiry & Compliance</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
         
-        body {
-            font-family: 'Inter', sans-serif;
-            scroll-behavior: smooth;
+        :root {
+            --bg-main: #020617;
+            --card-bg: #0f172a;
+            --accent: #6366f1;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: rgba(255, 255, 255, 0.05);
         }
 
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main); 
+            color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Sidebar Navigation Responsive */
+        .sidebar-alertaiq {
+            background: #020617;
+            border-right: 1px solid var(--border);
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .btn-animate {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        @media (max-width: 1024px) {
+            .sidebar-alertaiq {
+                position: fixed;
+                transform: translateX(-100%);
+            }
+            .sidebar-alertaiq.open {
+                transform: translateX(0);
+            }
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-link:active {
+            transform: scale(0.96);
+        }
+
+        /* Bento Grid Cards Responsive */
+        .bento-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
 
-        .btn-animate:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
+        .bento-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5);
         }
 
-        .btn-animate:active {
-            transform: scale(0.95);
+        .clickable-card:active {
+            transform: scale(0.98);
+            background: rgba(15, 23, 42, 0.8);
         }
 
-        .trust-popup {
-            transition: transform 0.5s ease, opacity 0.5s ease;
-            transform: translateY(100px);
+        /* Animations */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); opacity: 0; }
+            80%, 100% { opacity: 0; }
+        }
+
+        .dot-pulse {
+            position: relative;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+        }
+
+        .dot-pulse::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        .reveal {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
         }
 
-        .trust-popup.show {
-            transform: translateY(0);
-            opacity: 1;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .gradient-bg {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
-        .card-hover:hover {
-            transform: translateY(-5px);
-            border-color: #3b82f6;
+        .float-anim {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Profile Dropdown */
+        #profile-dropdown {
+            transform-origin: top right;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #profile-dropdown.hidden {
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--card-bg); border-radius: 10px; }
+
+        .mobile-overlay {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 90;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="min-h-screen flex selection:bg-indigo-500/30 selection:text-white">
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-chart-line text-white"></i>
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 mobile-overlay hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 sidebar-alertaiq flex flex-col p-8 sticky top-0 h-screen shrink-0">
+        <div class="mb-12 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <span class="text-xl font-black text-white italic">A</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight text-white">AlertaIQ</h1>
+                    <p class="text-[8px] font-bold text-indigo-400 uppercase tracking-[0.2em]">Smart Compliance</p>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                <i class="fas fa-times text-slate-400"></i>
+            </button>
+        </div>
+
+        <nav class="space-y-1 flex-grow">
+            <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4 px-4">Workspace</p>
+            <a href="#" onclick="showDashboard()" class="nav-link active flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold">
+                <i class="fas fa-grid-2 w-5"></i> Dashboard
+            </a>
+            <a href="#" onclick="showAnalysis('Expiry Radar')" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400">
+                <i class="fas fa-hourglass-end w-5"></i> Expiry Radar
+            </a>
+            <a href="#" onclick="showAnalysis('AI Logic')" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400">
+                <i class="fas fa-brain-circuit w-5"></i> AI Predictions
+            </a>
+            <a href="#" onclick="showAnalysis('Tax & GST')" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400">
+                <i class="fas fa-file-invoice-dollar w-5"></i> Tax Module
+            </a>
+            
+            <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-12 mb-4 px-4">Intelligence</p>
+            <a href="#" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400">
+                <i class="fas fa-shield-check w-5"></i> Risk Scores
+            </a>
+            <a href="#" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400">
+                <i class="fas fa-bell w-5"></i> Notify Channels
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-white/5">
+            <div class="flex items-center gap-4 p-3 bg-white/5 rounded-2xl">
+                <div id="userInitials" class="w-10 h-10 bg-indigo-500 flex items-center justify-center text-xs font-bold text-white rounded-xl">--</div>
+                <div class="overflow-hidden">
+                    <p id="sidebarUserName" class="text-sm font-bold text-white truncate">Guest</p>
+                    <span class="text-[9px] font-bold text-indigo-400 uppercase">Premium Plan</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow flex flex-col min-w-0">
+        
+        <!-- Header / Stats Bar -->
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-6 lg:px-12 sticky top-0 bg-[#020617]/80 backdrop-blur-xl z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center active:scale-90 transition-transform">
+                    <i class="fas fa-bars text-slate-400"></i>
+                </button>
+                <div class="hidden sm:flex items-center gap-4">
+                    <div class="dot-pulse"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Predictive Engine: Optimized</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-6 relative">
+                <div class="flex gap-2 mr-4">
+                    <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500 text-[10px]"><i class="fab fa-whatsapp"></i></div>
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 text-[10px]"><i class="fas fa-envelope"></i></div>
+                </div>
+                
+                <!-- Profile Action -->
+                <button onclick="toggleProfileDropdown()" class="flex items-center gap-3 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group">
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-black text-white" id="headerUserAvatar">?</div>
+                    <span class="text-xs font-bold text-slate-200 hidden sm:inline" id="headerUserName">Loading...</span>
+                    <i class="fas fa-chevron-down text-[10px] text-slate-500 group-hover:text-white transition-colors"></i>
+                </button>
+
+                <!-- Profile Dropdown Menu -->
+                <div id="profile-dropdown" class="absolute right-0 top-16 w-64 bg-slate-900 border border-white/10 rounded-3xl p-6 shadow-2xl hidden z-50">
+                    <div class="pb-4 border-b border-white/5 mb-4">
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Identity</p>
+                        <p class="text-sm font-bold text-white truncate" id="dropdownUserName">--</p>
+                        <p class="text-[10px] text-slate-500 truncate" id="dropdownUserEmail">--</p>
                     </div>
-                    <span class="text-2xl font-bold tracking-tight text-blue-900">BizGrow</span>
+                    <div class="space-y-1">
+                        <button class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition-colors flex items-center gap-3 text-xs font-semibold text-slate-400 hover:text-white">
+                            <i class="fas fa-user-circle text-indigo-500"></i> Profile Settings
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 transition-colors flex items-center gap-3 text-xs font-semibold text-slate-400 hover:text-white">
+                            <i class="fas fa-credit-card text-emerald-500"></i> Subscription
+                        </button>
+                        <button onclick="logoutSequence()" class="w-full text-left px-4 py-3 rounded-xl bg-red-500/5 hover:bg-red-500/10 transition-colors flex items-center gap-3 text-xs font-bold text-red-400 mt-2">
+                            <i class="fas fa-sign-out-alt"></i> Secure Logout
+                        </button>
+                    </div>
                 </div>
-                <div class="hidden md:flex space-x-8 font-medium">
-                    <a href="#services" class="hover:text-blue-600 transition">Services</a>
-                    <a href="#why-us" class="hover:text-blue-600 transition">Why Us</a>
-                    <a href="#results" class="hover:text-blue-600 transition">Results</a>
+            </div>
+        </header>
+
+        <div class="p-6 lg:p-12 overflow-y-auto w-full">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="reveal">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+                    <div>
+                        <p class="text-indigo-400 font-bold text-[10px] uppercase tracking-[0.3em] mb-2">Never miss what matters</p>
+                        <h2 class="text-3xl lg:text-4xl font-extrabold tracking-tight mb-2">Portfolio Analytics, <span id="displayUserName" class="text-indigo-500 italic">User</span>.</h2>
+                        <p class="text-slate-500 text-sm">AlertaIQ AI predicts 2 upcoming financial risks in 48 hours.</p>
+                    </div>
+                    <button class="w-full md:w-auto px-6 py-4 bg-indigo-600 rounded-xl text-sm font-bold hover:bg-indigo-500 active:scale-95 transition-all shadow-lg shadow-indigo-600/20">
+                        + Track New Asset
+                    </button>
                 </div>
-                <button class="btn-animate bg-blue-600 text-white px-6 py-2 rounded-full font-semibold">
-                    Get Started
+
+                <!-- Bento Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6">
+                    
+                    <!-- Smart Alerts Queue -->
+                    <div class="md:col-span-12 xl:col-span-8 bento-card p-6 lg:p-8">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-lg font-bold flex items-center gap-3">
+                                <i class="fas fa-bolt-lightning text-amber-500"></i> AI-Prioritized Alerts
+                            </h3>
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold rounded-full">Urgent</span>
+                                <span class="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-bold rounded-full">3 Nodes</span>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <!-- Alert Node: Health Insurance -->
+                            <div class="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-indigo-500/20 active:scale-[0.99] transition-all cursor-pointer group clickable-card">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500">
+                                        <i class="fas fa-heart-pulse"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-bold text-sm">Health Insurance (Niva Bupa)</p>
+                                            <span class="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[8px] font-black rounded uppercase tracking-tighter">AI: Early Bird</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-1">Due in 5 days • Risk of premium increase: <span class="text-amber-500">12.5%</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 w-full sm:w-auto justify-between">
+                                    <div class="text-left sm:text-right">
+                                        <p class="text-[9px] font-black text-slate-500 uppercase">Saving Tip</p>
+                                        <p class="text-xs font-bold text-emerald-400">Save ₹2,100</p>
+                                    </div>
+                                    <button class="px-5 py-2.5 bg-white text-slate-950 text-[10px] font-black uppercase rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all">Renew</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Prediction Card: Tax -->
+                    <div class="md:col-span-6 xl:col-span-4 bento-card p-8 bg-indigo-600 text-white shadow-2xl shadow-indigo-600/30 border-none clickable-card active:scale-95 transition-transform cursor-pointer overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-10">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h3 class="text-2xl font-black leading-tight mb-4">Tax Optimizer <br>Season 2024</h3>
+                        <p class="text-sm text-indigo-100/70 mb-8 leading-relaxed">
+                            "Invest <span class="font-bold text-white">₹50,000</span> in ELSS before March 31 to secure <span class="font-bold text-white">₹15,000</span> in tax savings."
+                        </p>
+                        <div class="flex items-center justify-between p-4 bg-black/20 rounded-2xl">
+                            <span class="text-[10px] font-bold uppercase">AI Confidence</span>
+                            <span class="text-sm font-black">94%</span>
+                        </div>
+                    </div>
+
+                    <!-- India Compliance Module -->
+                    <div class="md:col-span-6 xl:col-span-4 bento-card p-6 lg:p-8">
+                        <div class="flex justify-between items-center mb-8">
+                            <div>
+                                <h3 class="text-sm font-bold uppercase tracking-widest text-indigo-400">Compliance Stack</h3>
+                                <p class="text-[10px] text-slate-500">IND REGULATORY FEED</p>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <div class="text-xs font-black text-slate-400">GST</div>
+                                <div class="flex-grow">
+                                    <p class="text-xs font-bold">GSTR-1 Filing</p>
+                                    <p class="text-[9px] text-slate-500">Deadline: 11th April</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-[10px] text-slate-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Analysis Node (Predictive Engine View) -->
+            <div id="analysis-view" class="hidden reveal">
+                <button onclick="showDashboard()" class="mb-10 text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-3 hover:text-white active:scale-95 transition-all">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+                <div id="ai-deep-content" class="max-w-4xl space-y-8">
+                    <!-- Dynamic AI Content -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Entry / Handshake Layer -->
+    <div id="loginOverlay" class="fixed inset-0 z-[5000] flex items-center justify-center p-6 transition-all duration-1000 bg-[#020617]">
+        <div class="w-full max-w-md text-center space-y-12">
+            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl shadow-indigo-600/30 rotate-12 reveal">
+                <span class="text-2xl font-black text-white italic">A</span>
+            </div>
+            <div class="reveal" style="animation-delay: 0.1s">
+                <h1 class="text-5xl font-black tracking-tighter mb-4">Never miss <br>what matters.</h1>
+                <p class="text-slate-500 text-[10px] tracking-[0.4em] uppercase font-black">AlertaIQ Gateway</p>
+            </div>
+            <div class="space-y-6 reveal" style="animation-delay: 0.2s">
+                <div class="text-left px-2">
+                    <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-4 mb-2 block">Enter your good name</label>
+                    <input type="text" id="userInputName" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-xl font-light text-center outline-none focus:border-indigo-500 transition-all placeholder:text-slate-700" placeholder="e.g. Rahul Sharma" autocomplete="off">
+                </div>
+                <div class="text-left px-2">
+                    <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-4 mb-2 block">Your Email Address</label>
+                    <input type="email" id="userInputEmail" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-light text-center outline-none focus:border-indigo-500 transition-all placeholder:text-slate-700" placeholder="email@example.com">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-white text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white active:scale-95 transition-all shadow-xl shadow-white/5">
+                    Launch AlertaIQ
                 </button>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <!-- Hero Section -->
-    <header class="pt-32 pb-16 px-4">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <span class="inline-block px-4 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-bold mb-4">
-                    #1 BUSINESS GROWTH PARTNER
-                </span>
-                <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 leading-tight mb-6">
-                    We Don't Just Consult. <br>
-                    <span class="text-blue-600">We Scale.</span>
-                </h1>
-                <p class="text-xl text-slate-600 mb-8 leading-relaxed">
-                    BizGrow helps entrepreneurs and established enterprises unlock hidden revenue through data-driven strategies and cutting-edge digital transformation.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <button class="btn-animate bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2">
-                        Start Your Growth Journey <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <button class="btn-animate bg-white border-2 border-slate-200 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50">
-                        View Case Studies
-                    </button>
-                </div>
-            </div>
-            <div class="relative">
-                <div class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100">
-                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                        <i class="fas fa-bolt text-yellow-500"></i> Client Growth Velocity
-                    </h3>
-                    <canvas id="heroChart" height="250"></canvas>
-                </div>
-                <!-- Floating badges -->
-                <div class="absolute -top-6 -right-6 bg-green-500 text-white p-4 rounded-xl shadow-lg animate-float">
-                    <p class="text-xs font-bold uppercase">ROI Increase</p>
-                    <p class="text-2xl font-bold">+142%</p>
-                </div>
-            </div>
+    <!-- Processing Modal -->
+    <div id="loadingModal" class="fixed inset-0 z-[6000] hidden bg-[#020617]/98 backdrop-blur-2xl flex flex-col items-center justify-center p-12">
+        <div class="w-48 h-[2px] bg-white/5 rounded-full mb-8 overflow-hidden">
+            <div id="loading-bar" class="w-1/3 h-full bg-indigo-500 transition-all duration-300"></div>
         </div>
-    </header>
+        <p class="mono text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em]" id="loadingText">Processing Assets...</p>
+    </div>
 
-    <!-- Services Section -->
-    <section id="services" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">Our Core Services</h2>
-                <p class="text-slate-600 max-w-2xl mx-auto">Tailored solutions designed to tackle the specific hurdles of your industry.</p>
+    <!-- Logout / Goodbye Layer -->
+    <div id="logoutOverlay" class="fixed inset-0 z-[7000] hidden bg-[#020617] flex flex-col items-center justify-center p-12 overflow-hidden">
+        <!-- Floating shapes background -->
+        <div class="absolute -left-20 -top-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px]"></div>
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-[120px]"></div>
+        
+        <div class="text-center space-y-8 relative z-10 max-w-sm">
+            <!-- Cartoon Smiling Face -->
+            <div class="text-8xl float-anim mb-4 drop-shadow-2xl">😊</div>
+            
+            <div class="space-y-2">
+                <h2 class="text-4xl font-black tracking-tight text-white">Back soon!</h2>
+                <p class="text-slate-400 text-sm font-medium">Safely disconnecting your sessions...</p>
             </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Service 1 -->
-                <div class="p-8 rounded-2xl border border-slate-100 bg-slate-50 card-hover transition-all duration-300">
-                    <div class="w-14 h-14 bg-blue-600 text-white rounded-xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-blue-200">
-                        <i class="fas fa-bullseye"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Market Strategy</h3>
-                    <p class="text-slate-600 mb-6">In-depth market analysis and positioning to ensure you stay ahead of competitors.</p>
-                    <ul class="space-y-2 text-sm text-slate-700">
-                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Competitor Benchmarking</li>
-                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Pricing Optimization</li>
-                    </ul>
-                </div>
-                <!-- Service 2 -->
-                <div class="p-8 rounded-2xl border border-blue-200 bg-blue-50 card-hover transition-all duration-300 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Popular</div>
-                    <div class="w-14 h-14 bg-blue-600 text-white rounded-xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-blue-200">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Digital Acceleration</h3>
-                    <p class="text-slate-600 mb-6">Modernizing your tech stack and automating workflows for maximum efficiency.</p>
-                    <ul class="space-y-2 text-sm text-slate-700">
-                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Custom CRM Integration</li>
-                        <li><i class="fas fa-check text-blue-500 mr-2"></i> AI Workflow Automation</li>
-                    </ul>
-                </div>
-                <!-- Service 3 -->
-                <div class="p-8 rounded-2xl border border-slate-100 bg-slate-50 card-hover transition-all duration-300">
-                    <div class="w-14 h-14 bg-blue-600 text-white rounded-xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-blue-200">
-                        <i class="fas fa-users-cog"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Operations Coaching</h3>
-                    <p class="text-slate-600 mb-6">Building high-performance teams and leadership frameworks that last.</p>
-                    <ul class="space-y-2 text-sm text-slate-700">
-                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Leadership Training</li>
-                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Scaling Culture</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Why Us Section -->
-    <section id="why-us" class="py-20 gradient-bg text-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div>
-                    <h2 class="text-4xl font-bold mb-8">Why We Are Different</h2>
-                    <div class="space-y-6">
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fas fa-brain"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold mb-2">Evidence-Based Approach</h4>
-                                <p class="text-blue-100">We don't guess. Every recommendation is backed by cold, hard data from your specific industry niche.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fas fa-handshake"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold mb-2">Risk-Sharing Model</h4>
-                                <p class="text-blue-100">Our success is tied to yours. We offer performance-based structures that ensure we are fully aligned.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold mb-2">Speed to Market</h4>
-                                <p class="text-blue-100">Why wait months for results? Our agile methodology allows us to deploy changes in weeks, not years.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold">The BizGrow Advantage</h3>
-                        <p class="text-blue-100">Traditional vs. BizGrow Efficiency</p>
-                    </div>
-                    <canvas id="radarChart"></canvas>
-                </div>
+            <!-- Countdown Timer Circle -->
+            <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
+                <svg class="absolute inset-0 w-full h-full -rotate-90">
+                    <circle cx="64" cy="64" r="60" stroke="currentColor" stroke-width="4" fill="transparent" class="text-white/5" />
+                    <circle id="timer-circle" cx="64" cy="64" r="60" stroke="currentColor" stroke-width="4" fill="transparent" class="text-indigo-500" stroke-dasharray="377" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;" />
+                </svg>
+                <span id="logout-timer" class="text-4xl font-black text-white">5</span>
             </div>
-        </div>
-    </section>
 
-    <!-- Results Section -->
-    <section id="results" class="py-20 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-12">Global Impact by the Numbers</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div>
-                    <p class="text-4xl font-extrabold text-blue-600 mb-2">500+</p>
-                    <p class="text-slate-600 font-medium">Clients Scaled</p>
-                </div>
-                <div>
-                    <p class="text-4xl font-extrabold text-blue-600 mb-2">$250M</p>
-                    <p class="text-slate-600 font-medium">Revenue Generated</p>
-                </div>
-                <div>
-                    <p class="text-4xl font-extrabold text-blue-600 mb-2">12</p>
-                    <p class="text-slate-600 font-medium">Global Offices</p>
-                </div>
-                <div>
-                    <p class="text-4xl font-extrabold text-blue-600 mb-2">98%</p>
-                    <p class="text-slate-600 font-medium">Client Retention</p>
-                </div>
-            </div>
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Exiting Secure Vault</p>
         </div>
-    </section>
 
-    <!-- Trust Popup Container -->
-    <div id="trustPopup" class="trust-popup fixed bottom-6 left-6 z-[100] bg-white shadow-2xl rounded-2xl p-4 border border-slate-200 flex items-center gap-4 max-w-sm">
-        <div id="popupIcon" class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl flex-shrink-0">
-            <i class="fas fa-user-check"></i>
-        </div>
-        <div>
-            <p id="popupText" class="text-sm font-semibold text-slate-800 leading-tight">Someone from London just booked a strategy call!</p>
-            <p id="popupTime" class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">2 Minutes Ago</p>
-        </div>
-        <button onclick="hidePopup()" class="text-slate-300 hover:text-slate-500 ml-2">
-            <i class="fas fa-times"></i>
+        <!-- Floating Home Icon Button -->
+        <button onclick="goToHome()" class="mt-12 w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-white text-2xl hover:bg-indigo-600 hover:border-indigo-500 hover:scale-110 active:scale-95 transition-all shadow-2xl group relative z-20">
+            <i class="fas fa-home"></i>
+            <span class="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[9px] font-black text-slate-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Return Home</span>
         </button>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <div class="flex items-center justify-center gap-2 mb-6">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-chart-line text-white"></i>
-                </div>
-                <span class="text-2xl font-bold tracking-tight">BizGrow</span>
-            </div>
-            <p class="text-slate-400 mb-8 max-w-md mx-auto">Your partner in building a legacy, not just a business. Let's grow together.</p>
-            <div class="flex justify-center gap-6 mb-8 text-xl">
-                <a href="#" class="hover:text-blue-400 transition"><i class="fab fa-linkedin"></i></a>
-                <a href="#" class="hover:text-blue-400 transition"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="hover:text-blue-400 transition"><i class="fab fa-instagram"></i></a>
-            </div>
-            <div class="border-t border-slate-800 pt-8 text-sm text-slate-500">
-                &copy; 2024 BizGrow Consulting Group. All rights reserved.
-            </div>
-        </div>
-    </footer>
-
     <script>
-        // Hero Chart Initialization
-        window.onload = function() {
-            const ctxHero = document.getElementById('heroChart').getContext('2d');
-            new Chart(ctxHero, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Revenue Growth (%)',
-                        data: [10, 25, 45, 40, 75, 95],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { display: false },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
+        // Global State & Firebase Init
+        const firebaseConfig = JSON.parse(__firebase_config);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'alertaiq-v1';
 
-            // Radar Chart for Why Us
-            const ctxRadar = document.getElementById('radarChart').getContext('2d');
-            new Chart(ctxRadar, {
-                type: 'radar',
-                data: {
-                    labels: ['Speed', 'Strategy', 'Tech', 'Support', 'ROI', 'Reliability'],
-                    datasets: [
-                        {
-                            label: 'BizGrow',
-                            data: [95, 90, 98, 85, 95, 92],
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            borderColor: '#ffffff',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#ffffff'
-                        },
-                        {
-                            label: 'Others',
-                            data: [60, 55, 40, 70, 50, 65],
-                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                            borderColor: '#3b82f6',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#3b82f6'
-                        }
-                    ]
-                },
-                options: {
-                    plugins: { legend: { labels: { color: 'white' } } },
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(255,255,255,0.1)' },
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            pointLabels: { color: 'white' },
-                            ticks: { display: false }
-                        }
-                    }
-                }
-            });
+        let userData = { name: "Agent", email: "" };
 
-            startTrustPopups();
-        };
+        // Listen for Auth Changes
+        auth.onAuthStateChanged((user) => {
+            if (user && !document.getElementById('logoutOverlay').classList.contains('hidden')) {
+                // If we are in logout state, don't auto-login
+                return;
+            }
+            if (user) {
+                document.getElementById('loginOverlay').classList.add('opacity-0', 'pointer-events-none', 'scale-110');
+                updateUI(user);
+            } else {
+                document.getElementById('loginOverlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-110');
+            }
+        });
 
-        // Trust Popup Logic
-        const trustMessages = [
-            { text: "Sarah from New York just increased her ROI by 45%!", time: "Just Now", icon: "fa-rocket" },
-            { text: "Apex Corp signed a long-term scaling partnership.", time: "4 Mins Ago", icon: "fa-signature" },
-            { text: "15 new strategy audits completed today.", time: "12 Mins Ago", icon: "fa-clipboard-check" },
-            { text: "Michael L. left a 5-star review: 'Game changer!'", time: "1 Hour Ago", icon: "fa-star" },
-            { text: "New eBook: 'Scaling to 7 Figures' downloaded 400 times.", time: "3 Hours Ago", icon: "fa-download" }
-        ];
-
-        let currentPopupIndex = 0;
-        const popupElement = document.getElementById('trustPopup');
-        const popupText = document.getElementById('popupText');
-        const popupTime = document.getElementById('popupTime');
-        const popupIcon = document.getElementById('popupIcon').querySelector('i');
-
-        function showNextPopup() {
-            const msg = trustMessages[currentPopupIndex];
+        async function handleLogin() {
+            const nameInput = document.getElementById('userInputName').value.trim();
+            const emailInput = document.getElementById('userInputEmail').value.trim();
             
-            // Hide first
-            popupElement.classList.remove('show');
+            if(!nameInput || !emailInput) {
+                showToast("Identity parameters required");
+                return;
+            }
+
+            const loader = document.getElementById('loadingModal');
+            loader.classList.remove('hidden');
             
-            setTimeout(() => {
-                // Update content
-                popupText.innerText = msg.text;
-                popupTime.innerText = msg.time;
-                popupIcon.className = `fas ${msg.icon}`;
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await auth.signInWithCustomToken(__initial_auth_token);
+                } else {
+                    await auth.signInAnonymously();
+                }
+
+                userData.name = nameInput;
+                userData.email = emailInput;
                 
-                // Show
-                popupElement.classList.add('show');
-                
-                currentPopupIndex = (currentPopupIndex + 1) % trustMessages.length;
+                finalizeDashboardSequence();
+            } catch (error) {
+                loader.classList.add('hidden');
+                showToast("Failed to authenticate. Try again.");
+            }
+        }
+
+        function finalizeDashboardSequence() {
+            const bar = document.getElementById('loading-bar');
+            const steps = [
+                { text: "Securing Regulatory Tunnel...", progress: "33%" },
+                { text: "Scanning Indian Compliance Nodes...", progress: "66%" },
+                { text: "Predicting Expiry Risks...", progress: "100%" }
+            ];
+            
+            let current = 0;
+            const timer = setInterval(() => {
+                if(current < steps.length) {
+                    document.getElementById('loadingText').innerText = steps[current].text;
+                    bar.style.width = steps[current].progress;
+                    current++;
+                } else {
+                    clearInterval(timer);
+                    document.getElementById('loadingModal').classList.add('hidden');
+                    updateUI(auth.currentUser);
+                }
             }, 500);
         }
 
-        function hidePopup() {
-            popupElement.classList.remove('show');
+        function updateUI(user) {
+            const name = userData.name || "Agent";
+            const email = userData.email || user.email || "Anonymous Access";
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            document.getElementById('displayUserName').innerText = name;
+            document.getElementById('sidebarUserName').innerText = name;
+            document.getElementById('headerUserName').innerText = name;
+            document.getElementById('dropdownUserName').innerText = name;
+            document.getElementById('dropdownUserEmail').innerText = email;
+            
+            document.getElementById('userInitials').innerText = initials;
+            document.getElementById('headerUserAvatar').innerText = initials;
         }
 
-        function startTrustPopups() {
-            // Initial delay
-            setTimeout(() => {
-                showNextPopup();
-                // Cycle every 5 seconds (3s display + transition time)
-                setInterval(showNextPopup, 6000);
-            }, 3000);
+        // Logout Sequence with Timer
+        function logoutSequence() {
+            const overlay = document.getElementById('logoutOverlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('profile-dropdown').classList.add('hidden');
+
+            let count = 5;
+            const timerText = document.getElementById('logout-timer');
+            const circle = document.getElementById('timer-circle');
+            const totalDash = 377; // 2 * PI * r (60)
+
+            const countdown = setInterval(() => {
+                count--;
+                timerText.innerText = count;
+                
+                // Update circle dash offset
+                const offset = totalDash - (totalDash * (count / 5));
+                circle.style.strokeDashoffset = offset;
+
+                if (count <= 0) {
+                    clearInterval(countdown);
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    }).catch(() => {
+                        // Fallback for demo environments
+                        window.location.reload();
+                    });
+                }
+            }, 1000);
+        }
+
+        function goToHome() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch(() => {
+                window.location.reload();
+            });
+        }
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('analysis-view').classList.add('hidden');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector('[onclick="showDashboard()"]').classList.add('active');
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function showAnalysis(topic) {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('analysis-view').classList.remove('hidden');
+            document.getElementById('ai-deep-content').innerHTML = `
+                <div class="space-y-8 animate-in fade-in slide-in-from-bottom-6">
+                    <div class="p-8 lg:p-12 bg-white/5 rounded-[40px] border border-white/5 relative overflow-hidden">
+                        <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-8">AI Deep Intelligence</p>
+                        <h2 class="text-4xl lg:text-6xl font-black tracking-tighter mb-8">${topic} Node</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div class="space-y-6">
+                                <p class="text-base lg:text-xl leading-relaxed text-slate-300">
+                                    Our AlertaIQ Predictive engine has mapped your historical behavior against current Indian regulatory cycles. 
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-6 bg-indigo-600/20 rounded-3xl flex flex-col justify-center">
+                                    <span class="text-[9px] font-bold text-indigo-400 uppercase mb-2">Likelihood of Miss</span>
+                                    <span class="text-3xl font-black">22%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        window.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('profile-dropdown');
+            const btn = document.querySelector('button[onclick="toggleProfileDropdown()"]');
+            if (dropdown && !dropdown.contains(e.target) && btn && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-2xl text-xs font-bold z-[7000] shadow-2xl reveal";
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
