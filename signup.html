@@ -42,8 +42,8 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
             z-index: 100;
             align-items: center;
             justify-content: center;
@@ -120,16 +120,17 @@
     <!-- Success Message Modal with Timer -->
     <div id="successModal" class="success-modal px-4">
         <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl animate-slide-up">
-            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-check text-3xl"></i>
+            <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check-circle text-4xl"></i>
             </div>
-            <h2 class="text-2xl font-bold text-slate-900 mb-4">Success!</h2>
-            <p class="text-slate-600 mb-6 leading-relaxed">
-                We are creating your account. Please wait...
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Account Created!</h2>
+            <p class="text-slate-500 mb-8 font-medium">
+                Your BIZGROW workspace is ready for deployment.
             </p>
-            <div class="flex flex-col items-center gap-4">
-                <div class="text-5xl font-black text-emerald-600" id="redirectTimer">5</div>
-                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Redirecting to Login Page</p>
+            
+            <div class="bg-slate-50 rounded-2xl py-6 mb-2">
+                <div class="text-5xl font-black text-emerald-600 mb-2" id="redirectTimer">5</div>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Redirecting to Login</p>
             </div>
         </div>
     </div>
@@ -177,14 +178,14 @@
             const password = document.getElementById("password").value;
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> Initializing Neural Space...';
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i>';
 
             try {
                 // 1. Create the Auth User
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Save User Data to Firestore (following Rule 1)
+                // 2. Save User Data to Firestore
                 const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
                 
                 await withRetry(() => setDoc(userDocRef, {
@@ -204,14 +205,14 @@
                     timerEl.innerText = timeLeft;
                     if (timeLeft <= 0) {
                         clearInterval(countdown);
-                        window.location.href = 'login.html'; // Move to login page
+                        window.location.href = 'login.html';
                     }
                 }, 1000);
 
             } catch (err) {
                 console.error("Signup Error:", err);
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Create My Account';
+                submitBtn.innerHTML = '<span>Create My Account</span><i class="fas fa-arrow-right text-sm"></i>';
                 
                 const errorDisplay = document.createElement('p');
                 errorDisplay.className = 'text-red-500 text-xs mt-4 text-center font-bold animate-slide-up';
