@@ -62,6 +62,12 @@
 <body class="p-4">
     <div class="neural-bg"></div>
 
+    <!-- Home Button -->
+    <a href="index.html" class="fixed top-6 left-6 flex items-center gap-2 bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-slate-100 font-bold text-slate-700 hover:bg-slate-50 transition-all z-50">
+        <i class="fas fa-home text-sm text-emerald-600"></i>
+        <span>Home</span>
+    </a>
+
     <div class="max-w-md w-full glass-card rounded-[2.5rem] p-8 md:p-10 animate-slide-up">
         <div class="text-center mb-10">
             <div class="w-16 h-16 ai-gradient rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200 mx-auto mb-6">
@@ -100,30 +106,31 @@
             </div>
 
             <button type="submit" id="submitBtn" class="w-full ai-gradient text-white py-4 rounded-2xl font-bold text-lg hover:brightness-110 transition-all shadow-xl shadow-emerald-100 mt-4 flex items-center justify-center gap-2">
-                <span>Create Account</span>
+                <span>Create My Account</span>
                 <i class="fas fa-arrow-right text-sm"></i>
             </button>
         </form>
 
         <p class="text-center mt-8 text-slate-500 text-sm">
             Already have an account? 
-            <a href="login_actual.html" class="text-emerald-600 font-bold hover:underline">Log in</a>
+            <a href="login.html" class="text-emerald-600 font-bold hover:underline">Log in</a>
         </p>
     </div>
 
-    <!-- Success Message Modal -->
+    <!-- Success Message Modal with Timer -->
     <div id="successModal" class="success-modal px-4">
-        <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl animate-slide-up">
             <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-check text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-bold text-slate-900 mb-4">Welcome Aboard!</h2>
-            <p class="text-slate-600 mb-8 leading-relaxed">
-                You have successfully created an account with <span class="font-bold text-emerald-600 italic">BIZGROW</span>.
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">Success!</h2>
+            <p class="text-slate-600 mb-6 leading-relaxed">
+                We are creating your account. Please wait...
             </p>
-            <button onclick="window.location.href='SERVICES.html'" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all">
-                Go to Services
-            </button>
+            <div class="flex flex-col items-center gap-4">
+                <div class="text-5xl font-black text-emerald-600" id="redirectTimer">5</div>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Redirecting to Login Page</p>
+            </div>
         </div>
     </div>
 
@@ -132,7 +139,6 @@
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
             authDomain: "bizgrow-a23c0.firebaseapp.com",
@@ -151,8 +157,8 @@
         const form = document.getElementById("signupForm");
         const submitBtn = document.getElementById("submitBtn");
         const modal = document.getElementById('successModal');
+        const timerEl = document.getElementById('redirectTimer');
 
-        // Exponential Backoff helper for Rule 2 & 3 stability
         async function withRetry(fn, retries = 5, delay = 1000) {
             try {
                 return await fn();
@@ -171,15 +177,14 @@
             const password = document.getElementById("password").value;
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> Processing Neural Data...';
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch animate-spin"></i> Initializing Neural Space...';
 
             try {
                 // 1. Create the Auth User
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Save User Data to Firestore using Strict Paths (Rule 1)
-                // Format: /artifacts/{appId}/users/{userId}/{collectionName}/{docId}
+                // 2. Save User Data to Firestore (following Rule 1)
                 const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
                 
                 await withRetry(() => setDoc(userDocRef, {
@@ -190,19 +195,27 @@
                     appId: appId
                 }));
 
-                // 3. UI Success
+                // 3. UI Success & 5-second Timer
                 modal.style.display = 'flex';
-                submitBtn.innerHTML = 'Account Ready';
+                let timeLeft = 5;
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    timerEl.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        window.location.href = 'login.html'; // Move to login page
+                    }
+                }, 1000);
 
             } catch (err) {
                 console.error("Signup Error:", err);
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Retry Setup';
+                submitBtn.innerHTML = 'Create My Account';
                 
-                // Show user friendly error (no alerts)
                 const errorDisplay = document.createElement('p');
                 errorDisplay.className = 'text-red-500 text-xs mt-4 text-center font-bold animate-slide-up';
-                errorDisplay.innerText = err.message || 'Signup failed. Please check your credentials.';
+                errorDisplay.innerText = err.message || 'Signup failed. Please check your network connection.';
                 
                 const existing = document.querySelector('.text-red-500');
                 if (existing) existing.remove();
