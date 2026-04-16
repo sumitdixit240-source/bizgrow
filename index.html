@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
@@ -83,7 +85,7 @@
     <!-- Navigation -->
     <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 px-6 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center glass-nav px-6 py-3 rounded-2xl shadow-sm">
-            <div class="flex items-center gap-2 group cursor-pointer">
+            <div class="flex items-center gap-2 group cursor-pointer" onclick="window.location.reload()">
                 <div class="w-9 h-9 hero-gradient rounded-lg flex items-center justify-center shadow-indigo-200 shadow-lg">
                     <i data-lucide="bell-ring" class="text-white w-5 h-5"></i>
                 </div>
@@ -97,7 +99,8 @@
                 <a href="#pricing" class="hover:text-indigo-600 transition-colors">Pricing</a>
             </div>
 
-            <button class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-600 transition-all active:scale-95">
+            <!-- Clickable Button with Firecracker Effect -->
+            <button onclick="handleStartSaving(event)" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-600 transition-all active:scale-95">
                 Start Saving
             </button>
         </div>
@@ -117,7 +120,7 @@
                     The autonomous command center for your subscriptions, insurance, and tax deadlines. AlertaIQ doesn't just remind you—it predicts, optimizes, and saves you money.
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <button class="hero-gradient text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-indigo-100">
+                    <button onclick="handleStartSaving(event)" class="hero-gradient text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-indigo-100">
                         Get Secure Now <i data-lucide="arrow-right" class="w-5 h-5"></i>
                     </button>
                     <div class="flex items-center gap-3 px-6 py-4">
@@ -158,7 +161,7 @@
                                         <div class="text-[10px] text-slate-400">GSTR-3B Due Tomorrow</div>
                                     </div>
                                 </div>
-                                <button class="text-[10px] font-bold bg-slate-900 text-white px-3 py-1 rounded-lg">File Now</button>
+                                <button onclick="handleStartSaving(event)" class="text-[10px] font-bold bg-slate-900 text-white px-3 py-1 rounded-lg">File Now</button>
                             </div>
                         </div>
                     </div>
@@ -250,70 +253,13 @@
         </div>
     </section>
 
-    <!-- Specific Indian Context CTA -->
-    <section class="py-24 bg-slate-50 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-            <div class="reveal">
-                <h2 class="text-4xl font-black mb-6">Master Indian Taxes <br> <span class="text-indigo-600">Without the Stress.</span></h2>
-                <div class="space-y-6">
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">1</div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">Automated ITR Tracking</h4>
-                            <p class="text-sm text-slate-500">We sync with common portals to alert you of filing seasons and document requirements early.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">2</div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">GST Command Center</h4>
-                            <p class="text-sm text-slate-500">Perfect for freelancers and small businesses. Never miss a GSTR deadline again.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">3</div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">PAN & KYC Monitoring</h4>
-                            <p class="text-sm text-slate-500">Keep your identity documents compliant with the latest government regulations automatically.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="reveal delay-200">
-                <div class="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
-                    <div class="flex items-center justify-between mb-8">
-                        <h4 class="font-bold">Next 30 Days</h4>
-                        <i data-lucide="calendar" class="w-5 h-5 text-slate-400"></i>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-                            <span class="text-xs font-bold">Professional Tax (MH)</span>
-                            <span class="text-[10px] text-slate-400 font-bold">Mar 31</span>
-                        </div>
-                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-                            <span class="text-xs font-bold">Netflix Auto-Debit</span>
-                            <span class="text-[10px] text-slate-400 font-bold">Apr 05</span>
-                        </div>
-                        <div class="flex items-center justify-between p-4 bg-rose-50 border border-rose-100 rounded-2xl">
-                            <span class="text-xs font-bold text-rose-700">Health Policy Renewal</span>
-                            <span class="text-[10px] text-rose-500 font-black">URGENT</span>
-                        </div>
-                    </div>
-                    <button class="w-full mt-8 bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm hover:bg-indigo-600 transition-colors">
-                        View Full Timeline
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Final CTA -->
     <section class="py-32 px-6">
         <div class="max-w-5xl mx-auto hero-gradient rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl">
             <div class="relative z-10">
                 <h2 class="text-3xl md:text-5xl font-black mb-8 tracking-tight italic">Save ₹15,000+ per year <br> by simply being on time.</h2>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <button class="bg-white text-indigo-700 px-10 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all">
+                    <button onclick="handleStartSaving(event)" class="bg-white text-indigo-700 px-10 py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all">
                         Launch AlertaIQ Free
                     </button>
                     <button class="bg-indigo-900/30 backdrop-blur-md text-white border border-indigo-400/30 px-10 py-5 rounded-2xl font-black text-lg">
@@ -384,7 +330,7 @@
         window.addEventListener('scroll', reveal);
         reveal();
 
-        // Navbar interaction
+        // Navbar shadow on scroll
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 50) {
@@ -393,6 +339,46 @@
                 nav.querySelector('div').classList.remove('shadow-md');
             }
         });
+
+        // Firecracker and Redirect Function
+        function handleStartSaving(event) {
+            // Get button position for the confetti origin
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+            // Firecracker burst effect (Confetti)
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { x, y },
+                colors: ['#6366f1', '#4f46e5', '#f43f5e', '#ffffff'],
+                zIndex: 9999
+            });
+
+            // Side bursts for extra flair
+            setTimeout(() => {
+                confetti({
+                    particleCount: 80,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#6366f1', '#10b981']
+                });
+                confetti({
+                    particleCount: 80,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#6366f1', '#f43f5e']
+                });
+            }, 150);
+
+            // Redirect after a short delay to allow visual impact
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1200);
+        }
     </script>
 </body>
 </html>
