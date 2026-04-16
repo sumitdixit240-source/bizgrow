@@ -128,7 +128,7 @@
         </div>
     </div>
 
-    <!-- Status Overlay for Login/Logout Timers -->
+    <!-- Status Overlay -->
     <div id="statusOverlay">
         <div class="text-center">
             <div id="statusIcon" class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -146,26 +146,12 @@
         </div>
     </div>
 
-    <!-- Logout Confirm Modal -->
-    <div id="logoutModal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 modal-bg">
-        <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl">
-            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-sign-out-alt text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Confirm Logout</h3>
-            <p class="text-slate-500 mb-8">Are you sure you want to exit your session?</p>
-            <div class="flex gap-4">
-                <button onclick="toggleLogoutModal(false)" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold">No</button>
-                <button id="confirmLogoutBtn" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold">Yes, Logout</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
             authDomain: "bizgrow-a23c0.firebaseapp.com",
@@ -176,57 +162,28 @@
             measurementId: "G-WLZYCP312V"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const form = document.getElementById('loginForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const overlay = document.getElementById('statusOverlay');
-        const timerCount = document.getElementById('timerCount');
-        const progressCircle = document.getElementById('progressCircle');
+        // UI Element References
+        const form = document.getElementById("loginForm");
+        const submitBtn = document.getElementById("submitBtn");
+        const errorContainer = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+        const overlay = document.getElementById("statusOverlay");
+        const timerCount = document.getElementById("timerCount");
+        const progressCircle = document.getElementById("progressCircle");
 
-        // Login Logic
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        // UI Helpers
+        const showStatus = (title, desc) => {
+            overlay.style.display = 'flex';
+            document.getElementById('statusTitle').innerText = title;
+            document.getElementById('statusDesc').innerText = desc;
+        };
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loader"></span> Authenticating...';
-
-            try {
-                const cred = await signInWithEmailAndPassword(auth, email, password);
-                const user = cred.user;
-
-                const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-
-                let userData = {
-                    name: user.displayName || "User",
-                    email: user.email,
-                    uid: user.uid
-                };
-
-                if (userSnap.exists()) {
-                    userData.name = userSnap.data().fullName || userData.name;
-                }
-
-                localStorage.setItem("user", JSON.stringify(userData));
-                
-                showStatus("Access Granted", "Redirecting to workspace...", "success");
-                startTimer(() => window.location.href = "SERVICES.html");
-
-            } catch (error) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = "Authenticate";
-                document.getElementById('errorMessage').classList.remove('hidden');
-                document.getElementById('errorText').innerText = error.code.split('/')[1].replace(/-/g, ' ');
-            }
-        });
-
-        // Global Timer Helper
-        function startTimer(callback) {
+        const startTimer = (callback) => {
             let count = 3;
             timerCount.innerText = count;
             const interval = setInterval(() => {
@@ -234,37 +191,66 @@
                 timerCount.innerText = count;
                 const offset = 283 - (count / 3) * 283;
                 progressCircle.style.strokeDashoffset = offset;
-                
                 if (count <= 0) {
                     clearInterval(interval);
                     callback();
                 }
             }, 1000);
-        }
-
-        function showStatus(title, desc, type) {
-            overlay.style.display = 'flex';
-            document.getElementById('statusTitle').innerText = title;
-            document.getElementById('statusDesc').innerText = desc;
-            const icon = document.getElementById('statusIcon');
-            if(type === 'logout') {
-                icon.className = "w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6";
-                icon.innerHTML = '<i class="fas fa-sign-out-alt text-3xl"></i>';
-                progressCircle.style.stroke = "#f59e0b";
-            }
-        }
-
-        // Logout Logic
-        window.toggleLogoutModal = (show) => {
-            document.getElementById('logoutModal').style.display = show ? 'flex' : 'none';
         };
 
-        document.getElementById('confirmLogoutBtn').addEventListener('click', async () => {
-            toggleLogoutModal(false);
-            showStatus("Logging Out", "Terminating secure session...", "logout");
-            await signOut(auth);
-            localStorage.removeItem("user");
-            startTimer(() => window.location.href = "index.html");
+        // Handle Form Submission
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Reset UI state
+            errorContainer.classList.add("hidden");
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span> Authenticating...';
+
+            try {
+                // Authenticate with Firebase
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                const user = cred.user;
+
+                // Fetch extra user data from Firestore
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+                
+                let fullName = "User";
+                if (docSnap.exists()) {
+                    fullName = docSnap.data().fullName || "User";
+                }
+
+                // Store in LocalStorage for persistence in other pages
+                localStorage.setItem("user", JSON.stringify({
+                    name: fullName,
+                    email: user.email,
+                    uid: user.uid
+                }));
+
+                // Success Animation and Redirect
+                showStatus("Access Granted", "Initializing your workspace...");
+                startTimer(() => {
+                    window.location.href = "SERVICES.html";
+                });
+
+            } catch (err) {
+                // Handle Errors
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "Authenticate";
+                errorContainer.classList.remove("hidden");
+                
+                // Friendly error messages
+                let message = "Neural handshake failed. Please check credentials.";
+                if (err.code === 'auth/user-not-found') message = "Account not found.";
+                if (err.code === 'auth/wrong-password') message = "Incorrect password.";
+                
+                errorText.innerText = message;
+                console.error("Login Error:", err);
+            }
         });
     </script>
 </body>
