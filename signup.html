@@ -280,9 +280,10 @@
                 const user = cred.user;
 
                 // 2. Store user profile in Firestore
-                // Using structured path: artifacts/{appId}/users/{userId}/profile
+                // FIX: Added 'data' segment to match requirements: artifacts/{appId}/users/{userId}/data/profile
+                // This ensures an even number of segments (6 segments) for the document reference.
                 updateStatus("Storing Identity Data...");
-                await setDoc(doc(db, "artifacts", appId, "users", user.uid, "profile"), {
+                await setDoc(doc(db, "artifacts", appId, "users", user.uid, "data", "profile"), {
                     identityName: fullName,
                     email: email,
                     fullMobile: `+91${phone}`,
@@ -298,6 +299,7 @@
                 }, 1200);
 
             } catch (err) {
+                console.error("Signup error:", err);
                 loadingOverlay.classList.add("hidden");
                 errorContainer.classList.remove("hidden");
                 errorText.innerText = err.message;
