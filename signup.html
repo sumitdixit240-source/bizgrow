@@ -95,10 +95,9 @@
             color: #60a5fa;
         }
 
-        /* Loading Overlay Custom Style */
         #loading-overlay {
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(12px);
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(15px);
         }
     </style>
 </head>
@@ -207,9 +206,9 @@
                 <i class="fas fa-check text-4xl text-emerald-400"></i>
             </div>
 
-            <h2 class="text-3xl font-black text-white mb-4 tracking-tight">Account Successfully Created!</h2>
+            <h2 class="text-3xl font-black text-white mb-4 tracking-tight">Account Synthesized!</h2>
             <p class="text-slate-400 font-medium text-sm mb-10 leading-relaxed">
-                Your profile has been synthesized into the AlertaIQ network. You can now access your dashboard.
+                Outstanding! You have successfully created an account. Please log in to access your AlertaIQ dashboard.
             </p>
 
             <div class="space-y-4">
@@ -224,17 +223,27 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // Environment Variables provided by platform
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Your provided Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
+            authDomain: "bizgrow-a23c0.firebaseapp.com",
+            projectId: "bizgrow-a23c0",
+            storageBucket: "bizgrow-a23c0.firebasestorage.app",
+            messagingSenderId: "939506450920",
+            appId: "1:939506450920:web:76e5faf1fc9caf379c245d",
+            measurementId: "G-WLZYCP312V"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Platform App ID fallback for structured paths
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bizgrow-a23c0';
 
         const form = document.getElementById("signupForm");
         const submitBtn = document.getElementById("submitBtn");
@@ -266,13 +275,13 @@
             updateStatus("Authenticating Protocol...");
 
             try {
-                // Step 1: Create Auth User
+                // 1. Create User in Auth
                 const cred = await createUserWithEmailAndPassword(auth, email, password);
                 const user = cred.user;
 
-                // Step 2: Store Data
+                // 2. Store user profile in Firestore
+                // Using structured path: artifacts/{appId}/users/{userId}/profile
                 updateStatus("Storing Identity Data...");
-                // Note: Following Rule 1 for paths: /artifacts/{appId}/users/{userId}/...
                 await setDoc(doc(db, "artifacts", appId, "users", user.uid, "profile"), {
                     identityName: fullName,
                     email: email,
@@ -281,12 +290,12 @@
                     deployedAt: new Date().toISOString()
                 });
 
-                // Step 3: Synthesis Complete
+                // 3. Finalize
                 updateStatus("Synthesizing Access...");
                 setTimeout(() => {
                     loadingOverlay.classList.add("hidden");
                     successScreen.classList.remove("hidden");
-                }, 1000);
+                }, 1200);
 
             } catch (err) {
                 loadingOverlay.classList.add("hidden");
