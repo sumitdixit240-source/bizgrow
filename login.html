@@ -143,10 +143,6 @@
             transition: background 0.3s ease;
         }
 
-        .slider-handle:active {
-            cursor: grabbing;
-        }
-
         /* Status Animations */
         #statusOverlay {
             position: fixed;
@@ -177,8 +173,17 @@
             100% { background-position: 200% 0; }
         }
 
-        /* Initial Hidden States for GSAP */
         .animate-in { opacity: 0; transform: translateY(20px); }
+        
+        .nav-btn {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .nav-btn:hover {
+            border-color: var(--brand-indigo);
+            background: rgba(99, 102, 241, 0.1);
+            color: white;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
@@ -186,6 +191,17 @@
     <div class="grid-bg"></div>
     <div class="radial-glow" id="glow"></div>
     <div id="particle-container"></div>
+
+    <!-- Persistent Header Navigation -->
+    <div class="fixed top-8 left-0 right-0 z-50 px-8 flex justify-between items-center animate-in">
+        <a href="index.html" class="nav-btn flex items-center gap-3 px-5 py-2.5 rounded-full text-slate-400 text-xs font-bold uppercase tracking-widest backdrop-blur-md">
+            <i class="fas fa-home"></i>
+            <span>System Core</span>
+        </a>
+        <div class="text-[10px] text-slate-600 font-mono hidden md:block uppercase tracking-widest">
+            Encryption: AES-256 Enabled
+        </div>
+    </div>
 
     <div class="max-w-md w-full relative z-10" id="mainContainer">
         <!-- Logo Section -->
@@ -246,8 +262,8 @@
             <div class="mt-8 pt-6 border-t border-white/5 text-center flex flex-col gap-3">
                 <a href="#" class="text-slate-500 text-[11px] hover:text-indigo-400 transition-colors">Emergency Key Recovery</a>
                 <p class="text-slate-400 text-[11px]">
-                    Access Issues? 
-                    <a href="#" class="text-indigo-400 font-bold ml-1">Contact System Admin</a>
+                    New Entity? 
+                    <a href="signup.html" class="text-indigo-400 font-bold ml-1">Create an Account</a>
                 </p>
             </div>
         </div>
@@ -328,7 +344,6 @@
                 ease: "power2.out"
             });
             
-            // Move glow
             gsap.to("#glow", {
                 x: (e.pageX - window.innerWidth / 2) * 0.1,
                 y: (e.pageY - window.innerHeight / 2) * 0.1,
@@ -380,7 +395,6 @@
             handle.style.transform = `translateX(${diff}px)`;
             sliderText.style.opacity = 1 - (diff / maxTranslate);
             
-            // Blue shift on progress
             const progress = diff / maxTranslate;
             handle.style.background = `linear-gradient(135deg, 
                 rgb(${99 + (16 * progress)}, ${102 + (83 * progress)}, ${241 - (112 * progress)}), 
@@ -394,12 +408,10 @@
             const currentTranslate = parseFloat(handle.style.transform.replace('translateX(', '').replace('px)', '')) || 0;
             
             if (currentTranslate >= maxTranslate - 5) {
-                // Success - Commit
                 gsap.to(handle, { x: maxTranslate, scale: 1.1, duration: 0.2 });
                 handle.innerHTML = '<i class="fas fa-check"></i>';
                 initiateLoginSequence();
             } else {
-                // Return
                 gsap.to(handle, { x: 0, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.3)" });
                 gsap.to(sliderText, { opacity: 1, duration: 0.2 });
             }
@@ -412,14 +424,11 @@
             const statusTask = document.getElementById('statusTask');
             const statusTitle = document.getElementById('statusTitle');
 
-            // Fade out main UI
             gsap.to("#mainContainer", { opacity: 0, scale: 0.95, duration: 0.5 });
             
-            // Show Overlay
             overlay.style.display = 'flex';
             gsap.to(overlay, { opacity: 1, duration: 0.5 });
             
-            // Animation Stages
             const stages = [
                 { score: 14, task: "Decrypting Handshake...", title: "Authenticating" },
                 { score: 42, task: "Scanning Biometric Delta...", title: "Verification" },
@@ -430,10 +439,7 @@
             let currentStage = 0;
             const updateStage = () => {
                 if(currentStage >= stages.length) {
-                    gsap.to(overlay, { opacity: 0, duration: 0.5, delay: 1, onComplete: () => {
-                        // In a real app, window.location.href would go here
-                        document.body.innerHTML = '<div class="flex items-center justify-center h-screen"><h1 class="text-2xl font-bold text-emerald-400">SESSION ESTABLISHED</h1></div>';
-                    }});
+                    showFinalSuccess();
                     return;
                 };
 
@@ -441,7 +447,6 @@
                 statusTask.innerText = s.task;
                 statusTitle.innerText = s.title;
 
-                // Animate progress circle and text
                 gsap.to(progressCircle, {
                     strokeDashoffset: 301.59 - (s.score/100 * 301.59),
                     duration: 0.8,
@@ -460,6 +465,37 @@
 
                 currentStage++;
                 setTimeout(updateStage, 1200);
+            };
+
+            const showFinalSuccess = () => {
+                const overlay = document.getElementById('statusOverlay');
+                gsap.to(overlay, {
+                    backgroundColor: "#020617ee",
+                    duration: 1
+                });
+                
+                overlay.innerHTML = `
+                    <div class="text-center animate-in" style="opacity: 1; transform: translateY(0)">
+                        <div class="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+                            <i class="fas fa-check-circle text-emerald-500 text-5xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-black text-white mb-2">SESSION ESTABLISHED</h1>
+                        <p class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.3em] mb-12">Neural Identity Linked: 0x92f...a1</p>
+                        
+                        <div class="flex flex-col gap-4 w-64 mx-auto">
+                            <a href="SERVICES.html" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-3">
+                                <i class="fas fa-rocket"></i> Launch Dashboard
+                            </a>
+                            <a href="index.html" class="nav-btn py-4 rounded-2xl text-slate-400 font-bold flex items-center justify-center gap-3">
+                                <i class="fas fa-home"></i> Back to Home
+                            </a>
+                            <div class="pt-4 border-t border-white/5">
+                                <p class="text-slate-600 text-[10px] uppercase tracking-widest mb-3">Switch Node?</p>
+                                <a href="signup.html" class="text-indigo-400 text-xs font-bold hover:text-indigo-300 transition-colors">Create New Account</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
             };
 
             setTimeout(updateStage, 500);
