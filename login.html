@@ -132,6 +132,12 @@
             z-index: 100;
             background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, #020617 100%);
         }
+
+        .error-link {
+            text-decoration: underline;
+            cursor: pointer;
+            color: #818cf8;
+        }
     </style>
 </head>
 <body>
@@ -190,7 +196,7 @@
                 </button>
             </div>
 
-            <div class="text-center pt-4" id="errorContainer">
+            <div class="text-center pt-4 min-h-[40px]" id="errorContainer">
                 <!-- Errors will appear here -->
             </div>
         </div>
@@ -322,11 +328,18 @@
             btnIcon.className = "fas fa-circle-notch fa-spin ml-3 text-xs";
 
             try {
-                // Perform Firebase Auth
+                // Perform Firebase Auth check
                 await signInWithEmailAndPassword(auth, email, password);
+                
+                // If successful, proceed to celebratory flow
                 startVerificationFlow();
             } catch (error) {
-                showError(error.message);
+                // Specific error handling for "user not found"
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    showError(`Account not found. <a href="signup.html" class="error-link">Please create an account</a>`);
+                } else {
+                    showError(error.message);
+                }
                 resetButton();
             }
         }
@@ -338,7 +351,7 @@
         }
 
         function showError(msg) {
-            errorContainer.innerHTML = `<span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">${msg}</span>`;
+            errorContainer.innerHTML = `<span class="text-[10px] font-bold text-red-400 uppercase tracking-widest leading-relaxed">${msg}</span>`;
             gsap.fromTo(errorContainer, { x: -10 }, { x: 0, duration: 0.1, repeat: 5, yoyo: true });
         }
 
@@ -388,6 +401,7 @@
                         colors: ['#6366f1', '#a855f7', '#ffffff']
                     });
 
+                    // Redirect to SERVICES.html after the welcome message/celebration
                     setTimeout(() => {
                         window.location.href = 'SERVICES.html';
                     }, 2500);
