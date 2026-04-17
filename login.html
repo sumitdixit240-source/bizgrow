@@ -80,44 +80,39 @@
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
-        /* Slider Security Component */
-        .slider-track {
+        /* Auth Button Styling */
+        .auth-button {
             position: relative;
-            background: rgba(255, 255, 255, 0.04);
-            height: 64px;
-            border-radius: 32px;
-            display: flex;
-            align-items: center;
-            padding: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            overflow: hidden;
-        }
-
-        .slider-thumb {
-            width: 52px;
-            height: 52px;
             background: linear-gradient(135deg, var(--brand-indigo), var(--brand-violet));
-            border-radius: 26px;
+            height: 60px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: grab;
-            z-index: 10;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            color: white;
-        }
-
-        .slider-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            left: 0;
-            font-size: 0.7rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.15em;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5);
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+        }
+
+        .auth-button.loading {
             pointer-events: none;
+            opacity: 0.8;
         }
 
         .hidden-view {
@@ -189,12 +184,10 @@
             </div>
 
             <div class="pt-6">
-                <div class="slider-track" id="sliderTrack">
-                    <div class="slider-text" id="sliderText">Slide to Authenticate</div>
-                    <div class="slider-thumb" id="sliderThumb">
-                        <i class="fas fa-chevron-right text-sm"></i>
-                    </div>
-                </div>
+                <button id="authButton" class="w-full auth-button text-white">
+                    <span id="btnText">Sign In to Gateway</span>
+                    <i id="btnIcon" class="fas fa-arrow-right ml-3 text-xs opacity-70"></i>
+                </button>
             </div>
 
             <div class="text-center pt-4" id="errorContainer">
@@ -229,7 +222,7 @@
     <!-- FIREBASE MODULES -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Firebase Config from environment
         const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
@@ -302,9 +295,9 @@
         animateBackground();
 
         // --- AUTH LOGIC ---
-        const thumb = document.getElementById('sliderThumb');
-        const track = document.getElementById('sliderTrack');
-        const text = document.getElementById('sliderText');
+        const authButton = document.getElementById('authButton');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
         const authScreen = document.getElementById('authScreen');
         const loadingScreen = document.getElementById('loadingScreen');
         const successScreen = document.getElementById('successScreen');
@@ -312,44 +305,7 @@
         const loadMsg = document.getElementById('loadMsg');
         const errorContainer = document.getElementById('errorContainer');
 
-        let isDragging = false;
-        let startX = 0;
-        let maxMove = 0;
-
-        function updateBounds() { maxMove = track.offsetWidth - thumb.offsetWidth - 12; }
-        window.onload = updateBounds;
-
-        const onStart = (e) => {
-            isDragging = true;
-            startX = (e.type.includes('mouse') ? e.pageX : e.touches[0].pageX) - (gsap.getProperty(thumb, "x") || 0);
-            thumb.style.cursor = 'grabbing';
-        };
-
-        const onMove = (e) => {
-            if (!isDragging) return;
-            const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
-            let moveX = currentX - startX;
-            if (moveX < 0) moveX = 0;
-            if (moveX > maxMove) moveX = maxMove;
-            gsap.set(thumb, { x: moveX });
-            text.style.opacity = 1 - (moveX / maxMove);
-        };
-
-        const onEnd = async () => {
-            if (!isDragging) return;
-            isDragging = false;
-            thumb.style.cursor = 'grab';
-            const currentPos = gsap.getProperty(thumb, "x");
-            
-            if (currentPos > maxMove - 10) {
-                gsap.to(thumb, { x: maxMove, duration: 0.2 });
-                thumb.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                await attemptLogin();
-            } else {
-                gsap.to(thumb, { x: 0, duration: 0.4, ease: "back.out(1.7)" });
-                gsap.to(text, { opacity: 1, duration: 0.2 });
-            }
-        };
+        authButton.addEventListener('click', attemptLogin);
 
         async function attemptLogin() {
             const email = document.getElementById('email').value;
@@ -357,9 +313,13 @@
 
             if (!email || !password) {
                 showError("Please enter valid credentials");
-                resetSlider();
                 return;
             }
+
+            // Set Loading UI
+            authButton.classList.add('loading');
+            btnText.innerText = "Authenticating...";
+            btnIcon.className = "fas fa-circle-notch fa-spin ml-3 text-xs";
 
             try {
                 // Perform Firebase Auth
@@ -367,14 +327,14 @@
                 startVerificationFlow();
             } catch (error) {
                 showError(error.message);
-                resetSlider();
+                resetButton();
             }
         }
 
-        function resetSlider() {
-            gsap.to(thumb, { x: 0, duration: 0.4 });
-            thumb.innerHTML = '<i class="fas fa-chevron-right"></i>';
-            gsap.to(text, { opacity: 1, duration: 0.2 });
+        function resetButton() {
+            authButton.classList.remove('loading');
+            btnText.innerText = "Sign In to Gateway";
+            btnIcon.className = "fas fa-arrow-right ml-3 text-xs opacity-70";
         }
 
         function showError(msg) {
@@ -412,7 +372,6 @@
         }
 
         function showCelebration() {
-            // Fade loader
             gsap.to(loadingScreen, { 
                 opacity: 0, 
                 duration: 0.4, 
@@ -422,7 +381,6 @@
                     successScreen.style.display = 'flex';
                     gsap.fromTo(successScreen, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.6 });
 
-                    // Confetti trigger
                     confetti({
                         particleCount: 150,
                         spread: 70,
@@ -430,20 +388,12 @@
                         colors: ['#6366f1', '#a855f7', '#ffffff']
                     });
 
-                    // Redirect after delay
                     setTimeout(() => {
                         window.location.href = 'SERVICES.html';
                     }, 2500);
                 } 
             });
         }
-
-        thumb.addEventListener('mousedown', onStart);
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onEnd);
-        thumb.addEventListener('touchstart', onStart);
-        window.addEventListener('touchmove', onMove);
-        window.addEventListener('touchend', onEnd);
     </script>
 </body>
 </html>
