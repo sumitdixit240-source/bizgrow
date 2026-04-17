@@ -3,366 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | BizGrow Autonomous Intelligence</title>
+    <title>Login | AlertaIQ - AI-Powered Compliance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         :root {
-            --emerald-glow: 0 0 20px rgba(16, 185, 129, 0.4);
+            --brand-indigo: #6366f1;
+            --brand-violet: #8b5cf6;
+            --brand-emerald: #10b981;
+            --slate-deep: #020617;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #020617;
-            overflow-x: hidden;
+            background-color: var(--slate-deep);
             color: #f8fafc;
+            overflow: hidden;
+            touch-action: none;
         }
 
-        /* Video/Animated Background */
-        .video-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -2;
-            opacity: 0.4;
-            filter: saturate(1.5) contrast(1.2);
-        }
-
-        .neural-overlay {
+        /* Abstract Grid Background */
+        .grid-bg {
             position: fixed;
             inset: 0;
-            background: radial-gradient(circle at center, transparent 0%, #020617 100%);
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+        }
+
+        .radial-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150vw;
+            height: 150vh;
+            background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 60%);
             z-index: -1;
         }
 
-        /* Flying & Flashing Brand Name */
-        .brand-container {
-            perspective: 1000px;
-            animation: flying-entrance 1.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.2;
         }
 
-        .flashing-brand {
-            font-weight: 900;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            display: inline-block;
-            background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7, #10b981);
-            background-size: 300% auto;
+        /* AlertaIQ Brand Motion */
+        .brand-text {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.5));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: 
-                neural-flash 3s infinite,
-                float-motion 4s ease-in-out infinite,
-                glimmer 2s linear infinite;
-            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));
         }
 
-        @keyframes flying-entrance {
-            0% { transform: translateY(-50px) translateZ(-200px) rotateX(20deg); opacity: 0; }
-            100% { transform: translateY(0) translateZ(0) rotateX(0); opacity: 1; }
+        .iq-tag {
+            background: linear-gradient(135deg, var(--brand-indigo), var(--brand-violet));
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 900;
+            color: white;
+            margin-left: 4px;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            display: inline-block;
         }
 
-        @keyframes float-motion {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(1deg); }
-        }
-
-        @keyframes glimmer {
-            to { background-position: 300% center; }
-        }
-
-        @keyframes neural-flash {
-            0%, 100% { opacity: 1; filter: drop-shadow(0 0 15px #10b981); }
-            50% { opacity: 0.7; filter: drop-shadow(0 0 5px #10b981); }
-        }
-
-        .glass-card {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        /* Glassmorphism Card */
+        .compliance-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        /* Input Styles */
+        .iq-input {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .iq-input:focus {
+            border-color: var(--brand-indigo);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Slide to Unlock Container */
+        .slider-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            height: 64px;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            user-select: none;
             overflow: hidden;
         }
 
-        /* Scanner Line Effect */
-        .glass-card::after {
-            content: "";
+        .slider-text {
             position: absolute;
-            top: -100%;
-            left: 0;
             width: 100%;
-            height: 50%;
-            background: linear-gradient(to bottom, transparent, rgba(16, 185, 129, 0.05), transparent);
-            animation: scan 4s infinite linear;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: rgba(255, 255, 255, 0.4);
             pointer-events: none;
+            z-index: 1;
+            transition: opacity 0.2s ease;
         }
 
-        @keyframes scan {
-            0% { top: -100%; }
-            100% { top: 200%; }
+        .slider-handle {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--brand-indigo), var(--brand-violet));
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            z-index: 2;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+            transition: background 0.3s ease;
         }
 
-        .ai-gradient {
-            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+        .slider-handle:active {
+            cursor: grabbing;
         }
 
-        .loader {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
+        /* Status Animations */
         #statusOverlay {
             position: fixed;
             inset: 0;
             z-index: 100;
             display: none;
+            background: #020617;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(2, 6, 23, 0.9);
-            backdrop-filter: blur(12px);
+            opacity: 0;
         }
 
-        input {
-            background: rgba(255, 255, 255, 0.03) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
+        .risk-ring {
+            animation: rotate 12s linear infinite;
         }
 
-        input:focus {
-            background: rgba(255, 255, 255, 0.07) !important;
-            border-color: #10b981 !important;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
         }
 
-        .input-icon {
-            transition: all 0.3s ease;
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
-        input:focus + .input-icon {
-            color: #10b981;
-        }
-
-        /* Enhanced Back Button Styles */
-        .back-link {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .back-link:hover .arrow-icon {
-            transform: translateX(-6px);
-            color: #10b981;
-        }
+        /* Initial Hidden States for GSAP */
+        .animate-in { opacity: 0; transform: translateY(20px); }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-6">
 
-    <!-- Background Elements -->
-    <img class="video-bg" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" alt="Neural Network Background">
-    <div class="neural-overlay"></div>
+    <div class="grid-bg"></div>
+    <div class="radial-glow" id="glow"></div>
+    <div id="particle-container"></div>
 
-    <div class="max-w-md w-full relative z-10">
-        <div class="text-center mb-4 brand-container">
-            <h2 class="flashing-brand text-4xl mb-1">BizGrow</h2>
-            <div class="flex items-center justify-center gap-2 overflow-hidden">
-                <span class="h-[1px] w-8 bg-emerald-500/30"></span>
-                <p class="text-emerald-500 font-bold text-[10px] tracking-[0.4em] uppercase opacity-80">Autonomous Intelligence</p>
-                <span class="h-[1px] w-8 bg-emerald-500/30"></span>
-            </div>
+    <div class="max-w-md w-full relative z-10" id="mainContainer">
+        <!-- Logo Section -->
+        <div class="text-center mb-10 animate-in">
+            <h1 class="text-4xl brand-text inline-flex items-center">
+                Alerta<span class="iq-tag" id="iqTag">IQ</span>
+            </h1>
+            <p class="text-slate-500 text-sm mt-3 font-medium tracking-wide">
+                Secure Enterprise Portal <span class="text-indigo-400">v2.4.0</span>
+            </p>
         </div>
 
-        <!-- Enhanced Back Button with Arrow -->
-        <div class="mb-6">
-            <a href="index.html" class="back-link inline-flex items-center text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-emerald-400 transition-all group">
-                <span class="arrow-icon mr-3 flex items-center justify-center w-8 h-8 rounded-full border border-white/10 group-hover:border-emerald-500/50 transition-all">
-                    <i class="fas fa-arrow-left"></i>
-                </span>
-                Return to Core
-            </a>
-        </div>
-
-        <div id="loginCard" class="glass-card rounded-[2.5rem] p-10">
-            <div class="text-center mb-10">
-                <div class="w-16 h-16 ai-gradient rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6 relative">
-                    <div class="absolute inset-0 bg-emerald-400 blur-xl opacity-30 animate-pulse"></div>
-                    <i class="fas fa-microchip text-white text-2xl relative z-10"></i>
+        <!-- Portal Card -->
+        <div class="compliance-card rounded-[2.5rem] p-10 shadow-2xl animate-in" id="authCard">
+            <div class="mb-8 text-center">
+                <div id="iconBox" class="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                    <i class="fas fa-fingerprint text-indigo-400 text-xl"></i>
                 </div>
-                <h1 class="text-3xl font-black text-white mb-2">System Login</h1>
-                <p class="text-slate-400 font-medium text-sm">Synchronizing neural interface...</p>
+                <h2 class="text-2xl font-bold text-white">Identity Access</h2>
+                <p class="text-slate-400 text-xs mt-1">Authorized personnel only</p>
             </div>
 
             <form id="loginForm" class="space-y-6">
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-emerald-500 mb-2 ml-1">Access Identity</label>
-                    <div class="relative group">
-                        <i class="fas fa-at absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 input-icon"></i>
-                        <input type="email" id="email" required placeholder="neural-id@bizgrow.ai" 
-                            class="w-full rounded-2xl py-4 pl-12 pr-4 outline-none transition-all">
+                <div class="space-y-2 group">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1 transition-colors group-focus-within:text-indigo-400">Universal Identifier</label>
+                    <div class="relative">
+                        <i class="far fa-user-circle absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 transition-colors group-focus-within:text-indigo-400"></i>
+                        <input type="email" id="email" required placeholder="name@alertaiq.ai" 
+                            class="iq-input w-full rounded-2xl py-4 pl-14 pr-6 outline-none text-white placeholder-slate-700">
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-emerald-500 mb-2 ml-1">Encryption Key</label>
-                    <div class="relative group">
-                        <i class="fas fa-fingerprint absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 input-icon"></i>
+                <div class="space-y-2 group">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1 transition-colors group-focus-within:text-indigo-400">Passcode</label>
+                    <div class="relative">
+                        <i class="fas fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 transition-colors group-focus-within:text-indigo-400"></i>
                         <input type="password" id="password" required placeholder="••••••••" 
-                            class="w-full rounded-2xl py-4 pl-12 pr-4 outline-none transition-all">
+                            class="iq-input w-full rounded-2xl py-4 pl-14 pr-6 outline-none text-white placeholder-slate-700">
                     </div>
                 </div>
 
-                <div id="errorMessage" class="hidden p-4 rounded-xl bg-red-950/50 border border-red-500/30 text-red-400 text-xs font-bold flex items-center gap-3">
+                <div id="errorMessage" class="hidden p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] font-bold flex items-center gap-3">
                     <i class="fas fa-shield-virus"></i>
-                    <span id="errorText">Access Denied: Verification Failed</span>
+                    <span id="errorText">Access Denied: Blocked Activity</span>
                 </div>
 
-                <button type="submit" id="submitBtn" class="w-full ai-gradient text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                    <i class="fas fa-bolt"></i>
-                    Authenticate Session
-                </button>
+                <!-- Slide to Login Interaction -->
+                <div class="pt-2">
+                    <div class="slider-container shimmer" id="sliderContainer">
+                        <div class="slider-text" id="sliderText">Slide to Authenticate</div>
+                        <div class="slider-handle" id="sliderHandle">
+                            <i class="fas fa-chevron-right text-white"></i>
+                        </div>
+                    </div>
+                </div>
             </form>
 
-            <div class="mt-8 space-y-4 text-center">
-                <p class="text-slate-400 text-sm font-medium">
-                    New entity? 
-                    <a href="signup.html" class="text-emerald-400 font-bold hover:text-emerald-300 transition-colors">Register Node</a>
+            <div class="mt-8 pt-6 border-t border-white/5 text-center flex flex-col gap-3">
+                <a href="#" class="text-slate-500 text-[11px] hover:text-indigo-400 transition-colors">Emergency Key Recovery</a>
+                <p class="text-slate-400 text-[11px]">
+                    Access Issues? 
+                    <a href="#" class="text-indigo-400 font-bold ml-1">Contact System Admin</a>
                 </p>
-                
-                <div class="relative flex items-center py-2">
-                    <div class="flex-grow border-t border-white/10"></div>
-                    <span class="flex-shrink mx-4 text-slate-600 text-[10px] font-black uppercase tracking-widest">Protocol</span>
-                    <div class="flex-grow border-t border-white/10"></div>
-                </div>
-
-                <div class="flex gap-3">
-                    <button class="flex-1 flex items-center justify-center gap-2 py-3 border border-white/10 text-slate-300 rounded-xl font-bold text-xs hover:bg-white/5 transition-all">
-                        <i class="fab fa-google text-emerald-500"></i> Google
-                    </button>
-                    <button class="flex-1 flex items-center justify-center gap-2 py-3 border border-white/10 text-slate-300 rounded-xl font-bold text-xs hover:bg-white/5 transition-all">
-                        <i class="fab fa-github text-emerald-500"></i> GitHub
-                    </button>
-                </div>
             </div>
         </div>
-        
-        <p class="text-center mt-8 text-slate-600 text-[10px] uppercase tracking-[0.2em] font-bold">
-            &copy; 2024 BizGrow Corp <span class="mx-2">|</span> Secure Quantum Link Enabled
-        </p>
+
+        <div class="mt-8 flex justify-center gap-8 opacity-20 grayscale animate-in">
+            <i class="fas fa-university text-lg"></i>
+            <i class="fas fa-vault text-lg"></i>
+            <i class="fas fa-microchip text-lg"></i>
+        </div>
     </div>
 
-    <!-- Status Overlay -->
+    <!-- AI Initialization Overlay -->
     <div id="statusOverlay">
-        <div class="text-center">
-            <div id="statusIcon" class="w-24 h-24 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                <i class="fas fa-check-double text-4xl"></i>
+        <div class="relative w-48 h-48 mb-12" id="statusCircle">
+            <div class="absolute inset-0 border-4 border-dashed border-indigo-500/20 rounded-full risk-ring"></div>
+            <div class="absolute inset-4 border-2 border-emerald-500/30 rounded-full risk-ring" style="animation-direction: reverse; animation-duration: 15s;"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="riskScore" class="text-5xl font-black text-white">00</span>
+                <span class="text-[10px] uppercase tracking-[0.3em] text-emerald-500 font-bold">Risk Score</span>
             </div>
-            <h2 id="statusTitle" class="text-4xl font-black text-white mb-2">Authorized</h2>
-            <p id="statusDesc" class="text-slate-400 mb-10">Injecting session tokens...</p>
-            
-            <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
-                <svg class="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="6" fill="none"/>
-                    <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#10b981" stroke-width="6" fill="none" stroke-dasharray="283" stroke-dashoffset="283" class="transition-all duration-300 ease-out"/>
-                </svg>
-                <div class="text-center">
-                    <span id="timerCount" class="text-2xl font-black text-white block">3</span>
-                    <span class="text-[8px] uppercase tracking-tighter text-emerald-500 font-bold">SEC</span>
-                </div>
-            </div>
+            <svg class="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                <circle id="progressCircle" cx="50" cy="50" r="48" stroke="url(#gradient)" stroke-width="3" fill="none" stroke-dasharray="301.59" stroke-dashoffset="301.59" stroke-linecap="round" class="transition-all duration-300"/>
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#6366f1" />
+                        <stop offset="100%" stop-color="#10b981" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="text-center" id="statusInfo">
+            <h2 id="statusTitle" class="text-3xl font-black text-white mb-2">Syncing IQ Core</h2>
+            <div id="statusTask" class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Compiling Expiry Nodes...</div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        // Particle System
+        const container = document.getElementById('particle-container');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 3 + 1;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = `${Math.random() * 100}vw`;
+            p.style.top = `${Math.random() * 100}vh`;
+            container.appendChild(p);
+            
+            gsap.to(p, {
+                y: '-=100',
+                x: `+=${Math.random() * 40 - 20}`,
+                duration: 5 + Math.random() * 5,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+        }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
-            authDomain: "bizgrow-a23c0.firebaseapp.com",
-            projectId: "bizgrow-a23c0",
-            storageBucket: "bizgrow-a23c0.firebasestorage.app",
-            messagingSenderId: "939506450920",
-            appId: "1:939506450920:web:76e5faf1fc9caf379c245d",
-            measurementId: "G-WLZYCP312V"
+        // Initial Entry Animations
+        gsap.to(".animate-in", {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.15,
+            ease: "expo.out"
+        });
+
+        // 3D Tilt Effect on Mouse Move
+        const card = document.getElementById('authCard');
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            gsap.to(card, {
+                rotationY: xAxis,
+                rotationX: -yAxis,
+                duration: 1,
+                ease: "power2.out"
+            });
+            
+            // Move glow
+            gsap.to("#glow", {
+                x: (e.pageX - window.innerWidth / 2) * 0.1,
+                y: (e.pageY - window.innerHeight / 2) * 0.1,
+                duration: 2,
+                ease: "power1.out"
+            });
+        });
+
+        // Slider Logic
+        const handle = document.getElementById('sliderHandle');
+        const sliderContainer = document.getElementById('sliderContainer');
+        const sliderText = document.getElementById('sliderText');
+        
+        let isDragging = false;
+        let startX = 0;
+        let maxTranslate = 0;
+
+        const updateMaxTranslate = () => {
+            maxTranslate = sliderContainer.clientWidth - handle.clientWidth - 8;
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const form = document.getElementById("loginForm");
-        const submitBtn = document.getElementById("submitBtn");
-        const errorContainer = document.getElementById("errorMessage");
-        const errorText = document.getElementById("errorText");
-        const overlay = document.getElementById("statusOverlay");
-        const timerCount = document.getElementById("timerCount");
-        const progressCircle = document.getElementById("progressCircle");
-
-        const showStatus = (title, desc) => {
-            overlay.style.display = 'flex';
-            document.getElementById('statusTitle').innerText = title;
-            document.getElementById('statusDesc').innerText = desc;
-        };
-
-        const startTimer = (callback) => {
-            let count = 3;
-            const total = 3;
-            timerCount.innerText = count;
-            const interval = setInterval(() => {
-                count--;
-                timerCount.innerText = Math.max(0, count);
-                const progress = ((total - count) / total) * 283;
-                progressCircle.style.strokeDashoffset = 283 - progress;
-                if (count <= 0) {
-                    clearInterval(interval);
-                    callback();
-                }
-            }, 1000);
-        };
-
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
+        const startDrag = (e) => {
             const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+            const pass = document.getElementById("password").value;
+            
+            if(!email || !pass) {
+                gsap.fromTo("#errorMessage", { x: -10 }, { x: 0, duration: 0.1, repeat: 5, ease: "linear" });
+                document.getElementById("errorMessage").classList.remove("hidden");
+                document.getElementById("errorText").innerText = "Credentials Required for Uplink";
+                return;
+            }
 
-            errorContainer.classList.add("hidden");
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loader"></span> Processing...';
+            isDragging = true;
+            startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            handle.style.transition = 'none';
+            updateMaxTranslate();
+            
+            gsap.to(handle, { scale: 0.95, duration: 0.2 });
+        };
 
-            try {
-                const cred = await signInWithEmailAndPassword(auth, email, password);
-                const user = cred.user;
-                const docSnap = await getDoc(doc(db, "users", user.uid));
-                
-                let fullName = docSnap.exists() ? docSnap.data().fullName || "Agent" : "Agent";
+        const moveDrag = (e) => {
+            if (!isDragging) return;
+            const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            let diff = currentX - startX;
+            
+            if (diff < 0) diff = 0;
+            if (diff > maxTranslate) diff = maxTranslate;
+            
+            handle.style.transform = `translateX(${diff}px)`;
+            sliderText.style.opacity = 1 - (diff / maxTranslate);
+            
+            // Blue shift on progress
+            const progress = diff / maxTranslate;
+            handle.style.background = `linear-gradient(135deg, 
+                rgb(${99 + (16 * progress)}, ${102 + (83 * progress)}, ${241 - (112 * progress)}), 
+                rgb(${139 - (123 * progress)}, ${92 + (93 * progress)}, ${246 - (117 * progress)}))`;
+        };
 
-                localStorage.setItem("user", JSON.stringify({
-                    name: fullName,
-                    email: user.email,
-                    uid: user.uid
-                }));
+        const endDrag = async () => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const currentTranslate = parseFloat(handle.style.transform.replace('translateX(', '').replace('px)', '')) || 0;
+            
+            if (currentTranslate >= maxTranslate - 5) {
+                // Success - Commit
+                gsap.to(handle, { x: maxTranslate, scale: 1.1, duration: 0.2 });
+                handle.innerHTML = '<i class="fas fa-check"></i>';
+                initiateLoginSequence();
+            } else {
+                // Return
+                gsap.to(handle, { x: 0, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+                gsap.to(sliderText, { opacity: 1, duration: 0.2 });
+            }
+        };
 
-                showStatus("Access Granted", `Welcome back, ${fullName}. Initializing interface...`);
-                startTimer(() => {
-                    window.location.href = "SERVICES.html";
+        const initiateLoginSequence = async () => {
+            const overlay = document.getElementById('statusOverlay');
+            const progressCircle = document.getElementById('progressCircle');
+            const riskScoreText = document.getElementById('riskScore');
+            const statusTask = document.getElementById('statusTask');
+            const statusTitle = document.getElementById('statusTitle');
+
+            // Fade out main UI
+            gsap.to("#mainContainer", { opacity: 0, scale: 0.95, duration: 0.5 });
+            
+            // Show Overlay
+            overlay.style.display = 'flex';
+            gsap.to(overlay, { opacity: 1, duration: 0.5 });
+            
+            // Animation Stages
+            const stages = [
+                { score: 14, task: "Decrypting Handshake...", title: "Authenticating" },
+                { score: 42, task: "Scanning Biometric Delta...", title: "Verification" },
+                { score: 68, task: "Validating AI Governance...", title: "Neural Link" },
+                { score: 99, task: "Access Granted. Finalizing...", title: "Success" }
+            ];
+
+            let currentStage = 0;
+            const updateStage = () => {
+                if(currentStage >= stages.length) {
+                    gsap.to(overlay, { opacity: 0, duration: 0.5, delay: 1, onComplete: () => {
+                        // In a real app, window.location.href would go here
+                        document.body.innerHTML = '<div class="flex items-center justify-center h-screen"><h1 class="text-2xl font-bold text-emerald-400">SESSION ESTABLISHED</h1></div>';
+                    }});
+                    return;
+                };
+
+                const s = stages[currentStage];
+                statusTask.innerText = s.task;
+                statusTitle.innerText = s.title;
+
+                // Animate progress circle and text
+                gsap.to(progressCircle, {
+                    strokeDashoffset: 301.59 - (s.score/100 * 301.59),
+                    duration: 0.8,
+                    ease: "power2.inOut"
                 });
 
-            } catch (err) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-bolt"></i> Authenticate Session';
-                errorContainer.classList.remove("hidden");
-                errorText.innerText = "Handshake Failed: Invalid Identity/Key";
-            }
-        });
+                let start = parseInt(riskScoreText.innerText);
+                let obj = { val: start };
+                gsap.to(obj, {
+                    val: s.score,
+                    duration: 0.8,
+                    onUpdate: () => {
+                        riskScoreText.innerText = Math.floor(obj.val).toString().padStart(2, '0');
+                    }
+                });
+
+                currentStage++;
+                setTimeout(updateStage, 1200);
+            };
+
+            setTimeout(updateStage, 500);
+        };
+
+        // Events
+        handle.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', moveDrag);
+        window.addEventListener('mouseup', endDrag);
+
+        handle.addEventListener('touchstart', startDrag);
+        window.addEventListener('touchmove', moveDrag);
+        window.addEventListener('touchend', endDrag);
+
+        window.addEventListener('resize', updateMaxTranslate);
+        updateMaxTranslate();
     </script>
 </body>
 </html>
