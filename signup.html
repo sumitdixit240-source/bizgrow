@@ -3,213 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlertaIQ Onboarding</title>
+    <title>AlertaIQ | Secure Onboarding</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #020617;
-            background-image: radial-gradient(circle at top right, #1e1b4b, transparent), radial-gradient(circle at bottom left, #0f172a, transparent);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
-        .glass-card {
-            background: rgba(15, 23, 42, 0.8);
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        .input-group:focus-within label {
+            color: #60a5fa;
+            transform: translateY(-2px);
+        }
+        .gradient-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+        }
+        .gradient-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Flashing Animation for Login Button */
+        @keyframes pulse-flash {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px 10px rgba(59, 130, 246, 0.3); }
+        }
+        .animate-pulse-flash {
+            animation: pulse-flash 2s infinite ease-in-out;
+        }
+
+        /* Modal Overlay Transition */
+        #successModal {
+            transition: opacity 0.4s ease-out;
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
+<body class="text-slate-200 flex items-center justify-center p-4">
 
-    <div class="glass-card w-full max-w-md p-8 rounded-3xl shadow-2xl">
+    <div class="max-w-md w-full">
+        <!-- Logo Section -->
         <div class="text-center mb-8">
-            <div class="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-900/20">
-                <i class="fas fa-shield-halved text-3xl text-white"></i>
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4 shadow-lg shadow-blue-500/20">
+                <i class="fas fa-shield-halved text-2xl text-white"></i>
             </div>
-            <h2 class="text-3xl font-bold text-white tracking-tight">AlertaIQ</h2>
-            <p class="text-slate-400 mt-2">Intelligence for a safer workspace</p>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Alerta<span class="text-blue-500">IQ</span></h1>
+            <p class="text-slate-400 mt-2">Intelligence-driven security monitoring</p>
         </div>
 
-        <form id="signupForm" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 ml-1">Full Name</label>
-                <div class="relative">
-                    <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                    <input id="fullName" type="text" placeholder="John Doe" required
-                        class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 transition-all">
+        <!-- Main Card -->
+        <div class="glass-panel p-8 rounded-3xl shadow-2xl">
+            <h2 class="text-xl font-semibold text-white mb-6">Create your workspace</h2>
+            
+            <form id="signupForm" class="space-y-5">
+                <!-- Full Name -->
+                <div class="input-group">
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1 transition-all">Full Name</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><i class="far fa-user"></i></span>
+                        <input type="text" id="fullName" required placeholder="John Doe" 
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm">
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 ml-1">Email Address</label>
-                <div class="relative">
-                    <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                    <input id="email" type="email" placeholder="name@company.com" required
-                        class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 transition-all">
+                <!-- Email -->
+                <div class="input-group">
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1 transition-all">Work Email</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><i class="far fa-envelope"></i></span>
+                        <input type="email" id="email" required placeholder="name@company.com" 
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm">
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 ml-1">Phone Number</label>
-                <div class="relative">
-                    <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                    <input id="phone" type="tel" placeholder="10-digit mobile" required
-                        class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 transition-all">
+                <!-- Phone -->
+                <div class="input-group">
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1 transition-all">Phone Number</label>
+                    <div class="relative flex">
+                        <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center text-slate-500 text-sm">
+                            <span class="mr-2 border-r border-slate-700 pr-2">+91</span>
+                        </div>
+                        <input type="tel" id="phone" required placeholder="00000 00000" maxlength="10"
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-16 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-white">
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 ml-1">Secure Password</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                    <input id="password" type="password" placeholder="••••••••" required
-                        class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 transition-all">
+                <!-- Password -->
+                <div class="input-group">
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1 transition-all">Password</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="password" required placeholder="••••••••" 
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm">
+                    </div>
                 </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" 
+                    class="gradient-button w-full text-white font-semibold py-3.5 rounded-xl shadow-lg mt-4 flex items-center justify-center">
+                    Get Started
+                </button>
+            </form>
+
+            <!-- Inline Status Messages (for errors) -->
+            <div id="msg" class="mt-6 text-center text-sm min-h-[20px] rounded-lg p-2 hidden"></div>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+                <p class="text-slate-500 text-sm">
+                    Already have an account? 
+                    <a href="login.html" class="text-blue-400 hover:text-blue-300 font-medium ml-1">Log in</a>
+                </p>
             </div>
-
-            <button id="submitBtn" type="submit" 
-                class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-[0.98] mt-4">
-                Create Account
-            </button>
-        </form>
-
-        <div id="msgContainer" class="hidden mt-6 p-4 rounded-xl text-center text-sm font-medium">
-            <span id="msg"></span>
         </div>
         
-        <p class="text-center text-slate-500 text-xs mt-8">
-            By joining, you agree to our Terms of Service and Privacy Policy.
+        <p class="text-center text-slate-600 text-xs mt-8">
+            &copy; 2024 AlertaIQ Technologies. All rights reserved.
         </p>
     </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword, 
-    signInAnonymously, 
-    signInWithCustomToken,
-    onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc 
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Success Modal Popup -->
+    <div id="successModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden opacity-0">
+        <div class="glass-panel max-w-sm w-full p-10 rounded-3xl shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)] relative text-center border-blue-500/40">
+            <!-- Close Button -->
+            <button id="closeModal" class="absolute top-5 right-5 text-slate-500 hover:text-white transition-colors p-2">
+                <i class="fas fa-times text-xl"></i>
+            </button>
 
-// Environment-provided Globals
-const firebaseConfig = JSON.parse(__firebase_config);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'alerta-iq-default';
+            <!-- Icon -->
+            <div class="w-24 h-24 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/30">
+                <i class="fas fa-check text-5xl"></i>
+            </div>
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+            <!-- Content -->
+            <h3 class="text-3xl font-bold text-white mb-3">Welcome Aboard!</h3>
+            <p class="text-slate-400 mb-10 text-lg">Your AlertaIQ account has been created successfully.</p>
 
-let currentUser = null;
+            <!-- Flashing Login Button -->
+            <a href="login.html" class="animate-pulse-flash inline-flex items-center justify-center w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4.5 rounded-2xl shadow-xl transition-all text-lg">
+                Proceed to Login <i class="fas fa-arrow-right ml-3"></i>
+            </a>
+        </div>
+    </div>
 
-const form = document.getElementById("signupForm");
-const msgContainer = document.getElementById("msgContainer");
-const msg = document.getElementById("msg");
-const submitBtn = document.getElementById("submitBtn");
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// UI Helpers
-function showMessage(text, isError = true) {
-    msgContainer.classList.remove('hidden', 'bg-red-900/20', 'text-red-400', 'bg-emerald-900/20', 'text-emerald-400');
-    msgContainer.classList.add(isError ? 'bg-red-900/20' : 'bg-emerald-900/20');
-    msgContainer.classList.add(isError ? 'text-red-400' : 'text-emerald-400');
-    msg.innerText = text;
-}
+        // Updated Firebase config provided by user
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5wDZ1ujGnCgOXyYLVH9Y02KuLxgWbnUA",
+            authDomain: "bizgrow-a23c0.firebaseapp.com",
+            projectId: "bizgrow-a23c0",
+            storageBucket: "bizgrow-a23c0.firebasestorage.app",
+            messagingSenderId: "939506450920",
+            appId: "1:939506450920:web:76e5faf1fc9caf379c245d",
+            measurementId: "G-WLZYCP312V"
+        };
 
-// MANDATORY RULE 3: Auth Before Queries
-const initAuth = async () => {
-    try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-            await signInAnonymously(auth);
-        }
-    } catch (error) {
-        console.error("Auth initialization failed:", error);
-    }
-};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'alertaiq-onboarding';
 
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-});
+        const form = document.getElementById("signupForm");
+        const msg = document.getElementById("msg");
+        const btn = document.getElementById("submitBtn");
+        const successModal = document.getElementById("successModal");
+        const closeModal = document.getElementById("closeModal");
 
-// Handle Signup
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
-    // Ensure auth is ready
-    if (!currentUser) {
-        showMessage("Initial connection establishing... please try again in a moment.");
-        await initAuth();
-        return;
-    }
+        const toggleModal = (show) => {
+            if (show) {
+                successModal.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        successModal.classList.add('opacity-100');
+                    });
+                });
+            } else {
+                successModal.classList.remove('opacity-100');
+                setTimeout(() => {
+                    successModal.classList.add('hidden');
+                }, 400);
+            }
+        };
 
-    const fullName = document.getElementById("fullName").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const password = document.getElementById("password").value;
+        closeModal.addEventListener('click', () => toggleModal(false));
 
-    // Validation
-    if (phone.length !== 10 || isNaN(phone)) {
-        return showMessage("Please enter a valid 10-digit mobile number.");
-    }
-    if (password.length < 6) {
-        return showMessage("Password must be at least 6 characters long.");
-    }
+        const showErrorMessage = (text) => {
+            msg.innerText = text;
+            msg.classList.remove('hidden');
+            msg.classList.add('bg-red-500/10', 'text-red-400', 'p-3');
+        };
 
-    submitBtn.disabled = true;
-    submitBtn.innerText = "Creating Account...";
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            msg.classList.add('hidden');
+            
+            const fullName = document.getElementById("fullName").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const password = document.getElementById("password").value;
 
-    try {
-        // 1. Create Auth User
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        const newUser = userCred.user;
+            if (phone.length !== 10 || isNaN(phone)) {
+                showErrorMessage("Please enter a valid 10-digit phone number.");
+                return;
+            }
 
-        // 2. MANDATORY RULE 1: Correct Firestore Path Structure
-        // Format: /artifacts/{appId}/users/{userId}/{collectionName}/{docId}
-        const userRef = doc(db, 'artifacts', appId, 'users', newUser.uid, 'profile', 'data');
-        
-        await setDoc(userRef, {
-            uid: newUser.uid,
-            displayName: fullName,
-            email: email,
-            phone: "+91 " + phone,
-            role: "user",
-            onboardedAt: new Date().toISOString(),
-            appContext: appId
+            const originalBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="loader"></span> Deploying Account...`;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCred.user;
+
+                // Save to Firestore following strict rules: /artifacts/{appId}/users/{userId}/{collectionName}
+                const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
+                await setDoc(userRef, {
+                    uid: user.uid,
+                    name: fullName,
+                    email: email,
+                    phone: "+91 " + phone,
+                    onboardedAt: new Date().toISOString(),
+                    role: 'admin',
+                    status: 'active'
+                });
+
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+
+                form.reset();
+                toggleModal(true);
+
+            } catch (error) {
+                console.error("Signup error:", error);
+                let errorText = "Account creation failed.";
+                if (error.code === 'auth/email-already-in-use') errorText = "Email already registered.";
+                if (error.code === 'auth/weak-password') errorText = "Password is too weak.";
+                if (error.code === 'auth/invalid-email') errorText = "Please check your email format.";
+                
+                showErrorMessage(errorText);
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
         });
 
-        showMessage("Welcome aboard! Your account is ready.", false);
-        form.reset();
-        submitBtn.innerText = "Success!";
-        
-    } catch (error) {
-        console.error("Signup error:", error);
-        let errorText = "Registration failed. Please check your details.";
-
-        if (error.code === "auth/email-already-in-use") errorText = "This email is already registered.";
-        if (error.code === "auth/invalid-email") errorText = "Invalid email format.";
-        if (error.code === "auth/weak-password") errorText = "Password is too weak.";
-        
-        showMessage(errorText);
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Create Account";
-    }
-});
-
-// Start auth on load
-window.onload = initAuth;
-
-</script>
+        window.addEventListener('load', async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {}
+        });
+    </script>
 </body>
 </html>
